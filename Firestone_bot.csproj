@@ -12,41 +12,46 @@
 
   </ItemGroup>
 
+  <PropertyGroup>
+    <FirestoneGamePath Condition="'$(FirestoneGamePath)' == ''">$(ProgramFiles(x86))\Steam\steamapps\common\Firestone</FirestoneGamePath>
+    <FirestoneAssembliesPath>$(FirestoneGamePath)\MelonLoader\Il2CppAssemblies</FirestoneAssembliesPath>
+  </PropertyGroup>
+
   <ItemGroup>
     <Reference Include="UnityEngine">
-      <HintPath>D:\Steam\steamapps\common\Firestone\MelonLoader\Il2CppAssemblies\UnityEngine.dll</HintPath>
+      <HintPath>$(FirestoneAssembliesPath)\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>D:\Steam\steamapps\common\Firestone\MelonLoader\Il2CppAssemblies\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>$(FirestoneAssembliesPath)\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>D:\Steam\steamapps\common\Firestone\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll</HintPath>
+      <HintPath>$(FirestoneAssembliesPath)\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Il2Cppmscorlib">
-      <HintPath>D:\Steam\steamapps\common\Firestone\MelonLoader\Il2CppAssemblies\Il2Cppmscorlib.dll</HintPath>
+      <HintPath>$(FirestoneAssembliesPath)\Il2Cppmscorlib.dll</HintPath>
     </Reference>
     <Reference Include="Il2CppNewtonsoft.Json">
-      <HintPath>D:\Steam\steamapps\common\Firestone\MelonLoader\Il2CppAssemblies\Il2CppNewtonsoft.Json.dll</HintPath>
+      <HintPath>$(FirestoneAssembliesPath)\Il2CppNewtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.InputLegacyModule">
-      <HintPath>D:\Steam\steamapps\common\Firestone\MelonLoader\Il2CppAssemblies\UnityEngine.InputLegacyModule.dll</HintPath>
+      <HintPath>$(FirestoneAssembliesPath)\UnityEngine.InputLegacyModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>D:\Steam\steamapps\common\Firestone\MelonLoader\Il2CppAssemblies\UnityEngine.PhysicsModule.dll</HintPath>
+      <HintPath>$(FirestoneAssembliesPath)\UnityEngine.PhysicsModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.Physics2DModule">
-      <HintPath>D:\Steam\steamapps\common\Firestone\MelonLoader\Il2CppAssemblies\UnityEngine.Physics2DModule.dll</HintPath>
+      <HintPath>$(FirestoneAssembliesPath)\UnityEngine.Physics2DModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>D:\Steam\steamapps\common\Firestone\MelonLoader\Il2CppAssemblies\UnityEngine.UI.dll</HintPath>
+      <HintPath>$(FirestoneAssembliesPath)\UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UIModule">
-      <HintPath>D:\Steam\steamapps\common\Firestone\MelonLoader\Il2CppAssemblies\UnityEngine.UIModule.dll</HintPath>
+      <HintPath>$(FirestoneAssembliesPath)\UnityEngine.UIModule.dll</HintPath>
     </Reference>
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy /Y /F &quot;$(TargetPath)&quot; &quot;D:\Steam\steamapps\common\Firestone\Mods\&quot;&#xD;&#xA;xcopy /Y /F &quot;$(TargetPath)&quot; &quot;D:\Epic Games\FirestoneOnlineIdleRPG\Mods\&quot;&#xD;&#xA;echo Готово! DLL скопирована в папку модов" />
+    <Exec Command="if exist &quot;$(FirestoneGamePath)\Mods\&quot; xcopy /Y /F &quot;$(TargetPath)&quot; &quot;$(FirestoneGamePath)\Mods\&quot;&#xD;&#xA;if exist &quot;$(ProgramFiles(x86))\Epic Games\FirestoneOnlineIdleRPG\Mods\&quot; xcopy /Y /F &quot;$(TargetPath)&quot; &quot;$(ProgramFiles(x86))\Epic Games\FirestoneOnlineIdleRPG\Mods\&quot;&#xD;&#xA;echo DLL скопирована в папку модов" />
   </Target>
 
 </Project>
