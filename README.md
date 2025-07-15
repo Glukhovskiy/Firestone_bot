@@ -2,8 +2,6 @@
 
 Автоматический бот для игры Firestone, созданный с использованием MelonLoader.
 
-[Fireston_bot.dll](https://github.com/Glukhovskiy/Firestone_bot/releases/tag/release-0.12)
-
 ## Описание
 
 Firestone Bot автоматизирует выполнение повседневных задач в игре Firestone, включая сбор ресурсов, выполнение миссий, исследования и другие игровые активности.
@@ -103,8 +101,8 @@ closeWindows=false
 
 - Игра Firestone
 - [MelonLoader](https://melonloader.co/download)
-- .NET 6.0
-
+- .NET 6.0 (melonloader сам установит при первом запуске игры)
+- сборанная [Fireston_bot.dll](https://github.com/Glukhovskiy/Firestone_bot/releases/tag/release-0.12)
 ## Версия
 
 Текущая версия: **release-0.12**
