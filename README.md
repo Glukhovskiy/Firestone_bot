@@ -28,8 +28,8 @@ Firestone Bot автоматизирует выполнение повседне
 
 ## Установка
 
-1. Убедитесь, что у вас установлен MelonLoader для игры Firestone
-2. Скопируйте `Firestone_bot.dll` в папку `Mods` игры
+1. Убедитесь, что у вас установлен [MelonLoader](https://github.com/LavaGang/MelonLoader/releases/latest) для игры Firestone
+2. Скопируйте [Fireston_bot.dll](https://github.com/Glukhovskiy/Firestone_bot/releases/tag/release-0.12) в папку `Mods` игры
 3. Запустите игру
 
 ## Управление
@@ -100,7 +100,7 @@ closeWindows=false
 ## Требования
 
 - Игра Firestone
-- [MelonLoader](https://melonloader.co/download)
+- [MelonLoader](https://github.com/LavaGang/MelonLoader/releases/latest)
 - .NET 6.0 (melonloader сам установит при первом запуске игры)
 - сборанная [Fireston_bot.dll](https://github.com/Glukhovskiy/Firestone_bot/releases/tag/release-0.12)
 ## Версия
