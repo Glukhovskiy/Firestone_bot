@@ -25,7 +25,7 @@ namespace FirestoneBot
                     
                 case State.ClaimTools:
                     var claimToolsBtn = GameUtils.FindByPath("menusRoot/menuCanvasParent/SafeArea/menuCanvas/menus/Engineer/submenus/bg/engineerSubmenu/toolsProductionSection/claimToolsButton");
-                    if (GameUtils.ClickHandler(claimToolsBtn))
+                    if (GameUtils.ClickButton(claimToolsBtn))
                         _state = State.CloseWindow;
                     else
                         _state = State.CloseWindow;

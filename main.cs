@@ -2,8 +2,9 @@ using Il2CppInterop.Runtime.Injection;
 using MelonLoader;
 using UnityEngine;
 using System.IO;
+using System.Linq;
 
-[assembly: MelonInfo(typeof(FirestoneBot.BotMain), "Firestone Bot", "1.0.0", "YourName")]
+[assembly: MelonInfo(typeof(FirestoneBot.BotMain), "Firestone Bot", "0.12.1", "GenleDevil")]
 [assembly: MelonGame("HolydayStudios", "Firestone")]
 
 namespace FirestoneBot
@@ -14,6 +15,26 @@ namespace FirestoneBot
         private static BotConfig _config;
         private static string _configPath = "Mods/config.json";
         private static BotFunction _currentFunction = BotFunction.GuildExpeditions;
+        
+        private static readonly System.Collections.Generic.Dictionary<BotFunction, (System.Func<bool> IsEnabled, System.Action Process)> _modules = new()
+        {
+            { BotFunction.GuildExpeditions, (() => _config.guildExpeditions, GuildExpeditions.ProcessExpeditions) },
+            { BotFunction.MapMissions, (() => _config.mapMissions, MapMissions.ProcessMapMissions) },
+            { BotFunction.DailyTasks, (() => _config.dailyTasks, DailyTasks.ProcessDailyTasks) },
+            { BotFunction.MeteoriteResearch, (() => _config.meteoriteResearch, MeteoriteResearch.ProcessMeteoriteResearch) },
+            { BotFunction.FirestoneResearch, (() => _config.firestoneResearch, FirestoneResearch.ProcessFirestoneResearch) },
+            { BotFunction.MysteryBox, (() => _config.mysteryBox, MysteryBox.ProcessMysteryBox) },
+            { BotFunction.CheckIn, (() => _config.checkIn, CheckIn.ProcessCheckIn) },
+            { BotFunction.OracleRituals, (() => _config.oracleRituals, OracleRituals.ProcessOracleRituals) },
+            { BotFunction.OraclesGift, (() => _config.oraclesGift, OraclesGift.ProcessOraclesGift) },
+            { BotFunction.OracleBlessings, (() => _config.oracleBlessings, OracleBlessings.ProcessOracleBlessings) },
+            { BotFunction.Upgrades, (() => _config.upgrades, Upgrades.ProcessUpgrades) },
+            { BotFunction.Chests, (() => _config.chests, Chests.ProcessChests) },
+            { BotFunction.Tanks, (() => _config.tanks, Tanks.ProcessTanks) },
+            { BotFunction.Alchemy, (() => _config.alchemy, Alchemy.ProcessAlchemy) },
+            { BotFunction.Engineer, (() => _config.engineer, Engineer.ProcessEngineer) },
+            { BotFunction.CloseWindows, (() => _config.closeWindows, CloseWindows.CloseAllWindows) }
+        };
 
         [System.Obsolete]
         public override void OnApplicationStart()
@@ -49,104 +70,12 @@ namespace FirestoneBot
                 // Проверяем, что игра готова
                 if (!IsGameReady()) return;
 
-                switch (_currentFunction)
+                if (_modules.TryGetValue(_currentFunction, out var module))
                 {
-                    case BotFunction.GuildExpeditions:
-                        if (_config.guildExpeditions)
-                            GuildExpeditions.ProcessExpeditions();
-                        else
-                            NextFunction();
-                        break;
-                    case BotFunction.MapMissions:
-                        if (_config.mapMissions)
-                            MapMissions.ProcessMapMissions();
-                        else
-                            NextFunction();
-                        break;
-                    case BotFunction.DailyTasks:
-                        if (_config.dailyTasks)
-                            DailyTasks.ProcessDailyTasks();
-                        else
-                            NextFunction();
-                        break;
-                    case BotFunction.MeteoriteResearch:
-                        if (_config.meteoriteResearch)
-                            MeteoriteResearch.ProcessMeteoriteResearch();
-                        else
-                            NextFunction();
-                        break;
-                    case BotFunction.FirestoneResearch:
-                        if (_config.firestoneResearch)
-                            FirestoneResearch.ProcessFirestoneResearch();
-                        else
-                            NextFunction();
-                        break;
-                    case BotFunction.MysteryBox:
-                        if (_config.mysteryBox)
-                            MysteryBox.ProcessMysteryBox();
-                        else
-                            NextFunction();
-                        break;
-                    case BotFunction.CheckIn:
-                        if (_config.checkIn)
-                            CheckIn.ProcessCheckIn();
-                        else
-                            NextFunction();
-                        break;
-                    case BotFunction.OracleRituals:
-                        if (_config.oracleRituals)
-                            OracleRituals.ProcessOracleRituals();
-                        else
-                            NextFunction();
-                        break;
-                    case BotFunction.OraclesGift:
-                        if (_config.oraclesGift)
-                            OraclesGift.ProcessOraclesGift();
-                        else
-                            NextFunction();
-                        break;
-                    case BotFunction.OracleBlessings:
-                        if (_config.oracleBlessings)
-                            OracleBlessings.ProcessOracleBlessings();
-                        else
-                            NextFunction();
-                        break;
-                    case BotFunction.Upgrades:
-                        if (_config.upgrades)
-                            Upgrades.ProcessUpgrades();
-                        else
-                            NextFunction();
-                        break;
-                    case BotFunction.Chests:
-                        if (_config.chests)
-                            Chests.ProcessChests();
-                        else
-                            NextFunction();
-                        break;
-                    case BotFunction.Tanks:
-                        if (_config.tanks)
-                            Tanks.ProcessTanks();
-                        else
-                            NextFunction();
-                        break;
-                    case BotFunction.Alchemy:
-                        if (_config.alchemy)
-                            Alchemy.ProcessAlchemy();
-                        else
-                            NextFunction();
-                        break;
-                    case BotFunction.Engineer:
-                        if (_config.engineer)
-                            Engineer.ProcessEngineer();
-                        else
-                            NextFunction();
-                        break;
-                    case BotFunction.CloseWindows:
-                        if (_config.closeWindows)
-                            CloseWindows.CloseAllWindows();
-                        else
-                            NextFunction();
-                        break;
+                    if (module.IsEnabled())
+                        module.Process();
+                    else
+                        NextFunction();
                 }
             }
             catch (System.Exception ex)
@@ -161,47 +90,27 @@ namespace FirestoneBot
         {
             try
             {
-                if (File.Exists(_configPath))
+                _config = new BotConfig();
+                if (!File.Exists(_configPath))
                 {
-                    var lines = File.ReadAllLines(_configPath);
-                    _config = new BotConfig();
-                    
-                    foreach (var line in lines)
-                    {
-                        var parts = line.Split('=');
-                        if (parts.Length != 2) continue;
-                        
-                        var key = parts[0];
-                        var value = parts[1] == "true";
-                        
-                        switch (key)
-                        {
-                            case "enabled": _config.enabled = value; break;
-                            case "debugEnabled": _config.debugEnabled = value; break;
-                            case "guildExpeditions": _config.guildExpeditions = value; break;
-                            case "mapMissions": _config.mapMissions = value; break;
-                            case "dailyTasks": _config.dailyTasks = value; break;
-                            case "meteoriteResearch": _config.meteoriteResearch = value; break;
-                            case "firestoneResearch": _config.firestoneResearch = value; break;
-                            case "mysteryBox": _config.mysteryBox = value; break;
-                            case "checkIn": _config.checkIn = value; break;
-                            case "oracleRituals": _config.oracleRituals = value; break;
-                            case "oraclesGift": _config.oraclesGift = value; break;
-                            case "oracleBlessings": _config.oracleBlessings = value; break;
-                            case "upgrades": _config.upgrades = value; break;
-                            case "chests": _config.chests = value; break;
-                            case "tanks": _config.tanks = value; break;
-                            case "alchemy": _config.alchemy = value; break;
-                            case "engineer": _config.engineer = value; break;
-                            case "closeWindows": _config.closeWindows = value; break;
-                            case "logLevel": _config.logLevel = parts[1]; break;
-                        }
-                    }
-                }
-                else
-                {
-                    _config = new BotConfig();
                     SaveConfig();
+                    return;
+                }
+                
+                var lines = File.ReadAllLines(_configPath);
+                var properties = typeof(BotConfig).GetProperties();
+                
+                foreach (var line in lines)
+                {
+                    var parts = line.Split('=');
+                    if (parts.Length != 2) continue;
+                    
+                    var prop = properties.FirstOrDefault(p => p.Name.Equals(parts[0], System.StringComparison.OrdinalIgnoreCase));
+                    if (prop != null)
+                    {
+                        var value = prop.PropertyType == typeof(bool) ? parts[1] == "true" : (object)parts[1];
+                        prop.SetValue(_config, value);
+                    }
                 }
             }
             catch
@@ -238,27 +147,13 @@ namespace FirestoneBot
         {
             try
             {
-                string[] lines = {
-                    $"enabled={_config.enabled.ToString().ToLower()}",
-                    $"logLevel={_config.logLevel}",
-                    $"debugEnabled={_config.debugEnabled.ToString().ToLower()}",
-                    $"guildExpeditions={_config.guildExpeditions.ToString().ToLower()}",
-                    $"mapMissions={_config.mapMissions.ToString().ToLower()}",
-                    $"dailyTasks={_config.dailyTasks.ToString().ToLower()}",
-                    $"meteoriteResearch={_config.meteoriteResearch.ToString().ToLower()}",
-                    $"firestoneResearch={_config.firestoneResearch.ToString().ToLower()}",
-                    $"mysteryBox={_config.mysteryBox.ToString().ToLower()}",
-                    $"checkIn={_config.checkIn.ToString().ToLower()}",
-                    $"oracleRituals={_config.oracleRituals.ToString().ToLower()}",
-                    $"oraclesGift={_config.oraclesGift.ToString().ToLower()}",
-                    $"oracleBlessings={_config.oracleBlessings.ToString().ToLower()}",
-                    $"upgrades={_config.upgrades.ToString().ToLower()}",
-                    $"chests={_config.chests.ToString().ToLower()}",
-                    $"tanks={_config.tanks.ToString().ToLower()}",
-                    $"alchemy={_config.alchemy.ToString().ToLower()}",
-                    $"engineer={_config.engineer.ToString().ToLower()}",
-                    $"closeWindows={_config.closeWindows.ToString().ToLower()}"
-                };
+                var properties = typeof(BotConfig).GetProperties();
+                var lines = properties.Select(prop => 
+                {
+                    var value = prop.GetValue(_config);
+                    return $"{prop.Name}={value?.ToString().ToLower()}";
+                }).ToArray();
+                
                 File.WriteAllLines(_configPath, lines);
             }
             catch (System.Exception ex)
@@ -268,6 +163,7 @@ namespace FirestoneBot
         }
 
         private static bool _collectButtonSeen = false;
+        private static float _collectButtonTime = 0f;
 
         private static bool IsGameReady()
         {
@@ -278,15 +174,44 @@ namespace FirestoneBot
                 if (collectButton != null)
                 {
                     _collectButtonSeen = true;
-                    var button = collectButton.GetComponent<UnityEngine.UI.Button>();
-                    if (button != null)
-                    {
-                        button.onClick.Invoke();
-                    }
+                    MelonLogger.Msg("Нажата кнопка collectButton");
+                    GameUtils.ClickButton(collectButton);
+                    _collectButtonTime = Time.time + 0.2f;
                     return false;
                 }
                 
-                return _collectButtonSeen;
+                // Обработка событий после задержки
+                if (_collectButtonTime > 0f && Time.time >= _collectButtonTime)
+                {
+                    var eventsContainer = GameUtils.FindByPath("menusRoot/menuCanvasParent/SafeArea/menuCanvas/events");
+                    
+                    if (eventsContainer != null && eventsContainer.transform.childCount > 0)
+                    {
+                        MelonLogger.Msg($"Обнаружено событий: {eventsContainer.transform.childCount}");
+                        
+                        for (int i = 0; i < eventsContainer.transform.childCount; i++)
+                        {
+                            var child = eventsContainer.transform.GetChild(i);
+                            
+                            if (child.gameObject.activeInHierarchy)
+                            {
+                                var closeBtn = child.Find("bg/closeButton")?.gameObject;
+                                
+                                if (GameUtils.ClickButton(closeBtn))
+                                {
+                                    MelonLogger.Msg($"Закрыто событие: {child.name}");
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    
+                    _collectButtonTime = 0f;
+                    return false;
+                }
+                
+                // Игра готова к работе бота
+                return _collectButtonSeen && _collectButtonTime == 0f;
             }
             catch
             {
@@ -323,7 +248,7 @@ namespace FirestoneBot
         public string logLevel { get; set; } = "info";
         public bool debugEnabled { get; set; } = true;
         public bool guildExpeditions { get; set; } = true;
-        public bool mapMissions { get; set; } = false;
+        public bool mapMissions { get; set; } = true;
         public bool dailyTasks { get; set; } = true;
         public bool meteoriteResearch { get; set; } = true;
         public bool firestoneResearch { get; set; } = true;

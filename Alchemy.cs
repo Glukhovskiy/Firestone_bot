@@ -4,7 +4,7 @@ namespace FirestoneBot
 {
     public static class Alchemy
     {
-        private enum State { CheckNotification, WaitForWindow, ProcessExperiments, CloseWindow, Complete }
+        private enum State { CheckNotification, WaitForWindow, ProcessExperiments, WaitAfterClaim, StartExperiment, CloseWindow, Complete }
         private static State _state = State.CheckNotification;
         private static float _waitTimer = 0f;
         
@@ -33,10 +33,30 @@ namespace FirestoneBot
                     
                 case State.ProcessExperiments:
                     var claimBtn = GameUtils.FindByPath("menusRoot/menuCanvasParent/SafeArea/menuCanvas/menus/Alchemist/submenus/bg/experimentsSubmenu/experiments/alchExperimentSlot0/claimButton");
-                    if (!GameUtils.ClickButton(claimBtn))
+                    if (GameUtils.ClickButton(claimBtn))
                     {
-                        var startBtn = GameUtils.FindByPath("menusRoot/menuCanvasParent/SafeArea/menuCanvas/menus/Alchemist/submenus/bg/experimentsSubmenu/experiments/alchExperimentType0/startExperiment");
-                        GameUtils.ClickButton(startBtn);
+                        MelonLoader.MelonLogger.Msg("Награда за эксперимент собрана");
+                        _waitTimer = Time.time + 0.2f;
+                        _state = State.WaitAfterClaim;
+                    }
+                    else
+                    {
+                        _state = State.StartExperiment;
+                    }
+                    break;
+                    
+                case State.WaitAfterClaim:
+                    if (Time.time >= _waitTimer)
+                    {
+                        _state = State.StartExperiment;
+                    }
+                    break;
+                    
+                case State.StartExperiment:
+                    var startBtn = GameUtils.FindByPath("menusRoot/menuCanvasParent/SafeArea/menuCanvas/menus/Alchemist/submenus/bg/experimentsSubmenu/experiments/alchExperimentType0/startExperiment");
+                    if (GameUtils.ClickButton(startBtn))
+                    {
+                        MelonLoader.MelonLogger.Msg("Новый эксперимент запущен");
                     }
                     _state = State.CloseWindow;
                     break;

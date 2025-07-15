@@ -5,8 +5,9 @@ namespace FirestoneBot
 {
     public static class GuildExpeditions
     {
-        private enum State { FindButton, ProcessWindow, Complete }
+        private enum State { FindButton, ProcessWindow, WaitAfterClaim, StartExpedition, WaitBeforeClose, Complete }
         private static State _state = State.FindButton;
+        private static float _waitTimer = 0f;
         
         public static void ProcessExpeditions()
         {
@@ -29,7 +30,46 @@ namespace FirestoneBot
                 case State.ProcessWindow:
                     if (IsExpeditionWindowOpen())
                     {
-                        ProcessExpeditionWindow();
+                        var claimBtn = GameUtils.FindButton("claimButton");
+                        if (claimBtn != null)
+                        {
+                            GameUtils.ClickButton(claimBtn);
+                            MelonLogger.Msg("Награда за экспедицию собрана");
+                            _waitTimer = Time.time + 0.1f;
+                            _state = State.WaitAfterClaim;
+                        }
+                        else
+                        {
+                            _state = State.StartExpedition;
+                        }
+                    }
+                    break;
+                    
+                case State.WaitAfterClaim:
+                    if (Time.time >= _waitTimer)
+                    {
+                        _state = State.StartExpedition;
+                    }
+                    break;
+                    
+                case State.StartExpedition:
+                    var startBtn = GameUtils.FindButton("startButton");
+                    if (GameUtils.ClickButton(startBtn))
+                    {
+                        MelonLogger.Msg("Новая экспедиция запущена");
+                        _waitTimer = Time.time + 0.2f;
+                        _state = State.WaitBeforeClose;
+                    }
+                    else
+                    {
+                        _state = State.WaitBeforeClose;
+                    }
+                    break;
+                    
+                case State.WaitBeforeClose:
+                    if (Time.time >= _waitTimer)
+                    {
+                        GameUtils.CloseWindow("popups/Expeditions");
                         _state = State.Complete;
                     }
                     break;
@@ -37,25 +77,12 @@ namespace FirestoneBot
                 case State.Complete:
                     BotMain.NextFunction();
                     _state = State.FindButton;
+                    _waitTimer = 0f;
                     break;
             }
         }
         
-        private static void ProcessExpeditionWindow()
-        {
-            var claimBtn = GameUtils.FindButton("claimButton");
-            if (claimBtn != null)
-            {
-                GameUtils.ClickButton(claimBtn);
-            }
-            else
-            {
-                var startBtn = GameUtils.FindButton("startButton");
-                GameUtils.ClickButton(startBtn);
-            }
-            
-            GameUtils.CloseWindow("popups/Expeditions");
-        }
+
         
         private static bool IsExpeditionWindowOpen()
         {
