@@ -102,10 +102,10 @@ closeWindows=false
 - Игра Firestone
 - [MelonLoader](https://github.com/LavaGang/MelonLoader/releases/latest)
 - .NET 6.0 (melonloader сам установит при первом запуске игры)
-- сборанная [Fireston_bot.dll](https://github.com/Glukhovskiy/Firestone_bot/releases/tag/release-0.12)
+- сборанная [Fireston_bot.dll](https://github.com/Glukhovskiy/Firestone_bot/releases/tag/release-0.12.1)
 ## Версия
 
-Текущая версия: **release-0.12**
+Текущая версия: **release-0.12.1**
 
 ## Поддержка
 
