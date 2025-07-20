@@ -69,7 +69,7 @@ namespace FirestoneBot
                 case State.WaitBeforeClose:
                     if (Time.time >= _waitTimer)
                     {
-                        GameUtils.CloseWindow("popups/Expeditions");
+                        GameUtils.CloseWindow("popups/Expeditions/bg");
                         _state = State.Complete;
                     }
                     break;

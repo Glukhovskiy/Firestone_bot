@@ -90,6 +90,8 @@ namespace FirestoneBot
                         
                     case State.Complete:
                         DebugManager.DebugLog("[MapMissions] Завершение работы модуля");
+                        var missionRewardsClose = GameUtils.FindByPath("menusRoot/menuCanvasParent/SafeArea/menuCanvas/popups/MissionRewards/bg/closeButton");
+                        GameUtils.ClickButton(missionRewardsClose);
                         GameUtils.CloseWindow("menus/WorldMap");
                         BotMain.NextFunction();
                         ResetState();

@@ -5,7 +5,7 @@ namespace FirestoneBot
 {
     public static class MeteoriteResearch
     {
-        private enum State { OpenLibrary, ProcessResearch, Complete }
+        private enum State { OpenLibrary, ProcessResearch, WaitForResearchWindow, Complete }
         private static State _state = State.OpenLibrary;
         private static float _waitTimer = 0f;
         private static int _currentResearchIndex = 0;
@@ -39,6 +39,21 @@ namespace FirestoneBot
                     }
                     break;
                     
+                case State.WaitForResearchWindow:
+                    if (Time.time >= _waitTimer)
+                    {
+                        var buyButton = GameUtils.FindButton("researchButton");
+                        if (GameUtils.ClickButton(buyButton))
+                        {
+                            MelonLogger.Msg("Исследование куплено");
+                        }
+                        
+                        GameUtils.CloseWindow("popups/ResearchPreview");
+                        _currentResearchIndex++;
+                        _state = State.ProcessResearch;
+                    }
+                    break;
+                    
                 case State.Complete:
                     GameUtils.CloseWindow("Library");
                     BotMain.NextFunction();
@@ -54,15 +69,8 @@ namespace FirestoneBot
             if (researchButton != null && GameUtils.ClickButton(researchButton))
             {
                 MelonLogger.Msg($"Открыто исследование {_currentResearchIndex}");
-                
-                var buyButton = GameUtils.FindButton("researchButton");
-                if (GameUtils.ClickButton(buyButton))
-                {
-                    MelonLogger.Msg("Исследование куплено");
-                }
-                
-                GameUtils.CloseWindow("closeButton");
-                _currentResearchIndex++;
+                _waitTimer = Time.time + 0.1f;
+                _state = State.WaitForResearchWindow;
                 return true;
             }
             

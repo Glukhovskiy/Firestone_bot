@@ -21,15 +21,15 @@ Firestone Bot автоматизирует выполнение повседне
 - **Oracle Blessings** - Благословения оракула
 - **Upgrades** - Автоматические улучшения
 - **Chests** - Открытие сундуков
-- **Tanks** - Должен запускать ежедневки за танки, пока не работает
+- **Tanks** - собирает награду, и выполняет ежедневные миссии
 - **Alchemy** - Собирает и запускает исследования алхимика за кровь дракона
-- **Engineer** - должен собирать ключи у инженера, пока не работает
-- **Close Windows** - отладочная функция Закрытие всех окон
+- **Engineer** - собирает ключи у инженера
+- **Close Windows** - если что-то не отработало, раз в 10 минут закрывает все открытые окона
 
 ## Установка
 
 1. Убедитесь, что у вас установлен [MelonLoader](https://github.com/LavaGang/MelonLoader/releases/latest) для игры Firestone
-2. Скопируйте [Fireston_bot.dll](https://github.com/Glukhovskiy/Firestone_bot/releases/tag/release-0.12) в папку `Mods` игры
+2. Скопируйте [Fireston_bot.dll](https://github.com/Glukhovskiy/Firestone_bot/releases/latest) в папку `Mods` игры
 3. Запустите игру
 
 ## Управление
@@ -102,7 +102,7 @@ closeWindows=false
 - Игра Firestone
 - [MelonLoader](https://github.com/LavaGang/MelonLoader/releases/latest)
 - .NET 6.0 (melonloader сам установит при первом запуске игры)
-- сборанная [Fireston_bot.dll](https://github.com/Glukhovskiy/Firestone_bot/releases/tag/release-0.12.1)
+- сборанная [Fireston_bot.dll](https://github.com/Glukhovskiy/Firestone_bot/releases/latest)
 ## Версия
 
 Текущая версия: **release-0.12.1**
