@@ -19,7 +19,7 @@ namespace FirestoneBot
                     if (GameUtils.ClickButton(warfrontButton))
                     {
                         MelonLogger.Msg("Нажата кнопка WarfrontCampaign");
-                        _waitTimer = Time.time + 0.5f;
+                        _waitTimer = Time.time + 0.2f;
                         _state = State.ProcessClaim;
                     }
                     else
@@ -36,21 +36,25 @@ namespace FirestoneBot
                         {
                             MelonLogger.Msg("Награда за танки собрана");
                         }
+                        _waitTimer = Time.time + 0.2f;
                         _state = State.OpenDailyMissions;
                     }
                     break;
                     
                 case State.OpenDailyMissions:
-                    var dailyMissionsButton = GameUtils.FindByPath("menusRoot/menuCanvasParent/SafeArea/menuCanvas/menus/WorldMap/submenus/warfrontCampaignSubmenu/dailyMissionsButton");
-                    if (GameUtils.ClickButton(dailyMissionsButton))
+                    if (Time.time >= _waitTimer)
                     {
-                        MelonLogger.Msg("Открыты ежедневные миссии");
-                        _waitTimer = Time.time + 0.2f;
-                        _state = State.WaitForDailyWindow;
-                    }
-                    else
-                    {
-                        _state = State.CloseWindow;
+                        var dailyMissionsButton = GameUtils.FindByPath("menusRoot/menuCanvasParent/SafeArea/menuCanvas/menus/WorldMap/submenus/warfrontCampaignSubmenu/dailyMissionsButton");
+                        if (GameUtils.ClickButton(dailyMissionsButton))
+                        {
+                            MelonLogger.Msg("Открыты ежедневные миссии");
+                            _waitTimer = Time.time + 0.2f;
+                            _state = State.WaitForDailyWindow;
+                        }
+                        else
+                        {
+                            _state = State.CloseWindow;
+                        }
                     }
                     break;
                     

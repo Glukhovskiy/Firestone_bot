@@ -127,7 +127,7 @@ namespace FirestoneBot
                         {
                             string blessingName = _blessingsList[_currentBlessingIndex].name;
                             string displayName = GetBlessingDisplayName(blessingName);
-                            MelonLogger.Msg($"Недостаточно ресурсов для: {displayName}");
+                            DebugManager.DebugLog($"Недостаточно ресурсов для: {displayName}");
                         }
                     }
                     
@@ -215,7 +215,7 @@ namespace FirestoneBot
             }
             
             var sortedBlessings = blessings.OrderBy(x => x.priority).Select(x => x.obj).ToArray();
-            MelonLogger.Msg($"Найдено {sortedBlessings.Length} активных благословений");
+            DebugManager.DebugLog($"Найдено {sortedBlessings.Length} активных благословений");
             return sortedBlessings;
         }
         
@@ -352,7 +352,7 @@ namespace FirestoneBot
                     }
                 }
                 
-                MelonLogger.Msg($"Загружено {_blessingPriorities.Count} приоритетов благословений");
+                DebugManager.DebugLog($"Загружено {_blessingPriorities.Count} приоритетов благословений");
             }
             catch (System.Exception ex)
             {

@@ -4,7 +4,7 @@ using UnityEngine;
 using System.IO;
 using System.Linq;
 
-[assembly: MelonInfo(typeof(FirestoneBot.BotMain), "Firestone Bot", "0.12.2", "GenleDevil")]
+[assembly: MelonInfo(typeof(FirestoneBot.BotMain), "Firestone Bot", "0.12.3", "GenleDevil")]
 [assembly: MelonGame("HolydayStudios", "Firestone")]
 
 namespace FirestoneBot
