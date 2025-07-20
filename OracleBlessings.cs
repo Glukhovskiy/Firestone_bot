@@ -1,5 +1,7 @@
 using MelonLoader;
 using UnityEngine;
+using System.IO;
+using System.Linq;
 
 namespace FirestoneBot
 {
@@ -11,9 +13,30 @@ namespace FirestoneBot
         private static int _currentBlessingIndex = 0;
         private static bool _blessingWindowOpened = false;
         private static float _blessingOpenTime = 0f;
+        private static System.Collections.Generic.Dictionary<string, int> _blessingPriorities = new();
+        private static string _configPath = "Mods/OracleBlessings.conf";
+        
+        private static readonly System.Collections.Generic.Dictionary<string, string> _blessingNames = new()
+        {
+            { "0", "Raining gold" },
+            { "1", "Mana heroes" },
+            { "2", "Rage heroes" },
+            { "3", "Energy heroes" },
+            { "4", "Tank specialization" },
+            { "5", "Healer specialization" },
+            { "6", "Damage spexialization" },
+            { "7", "Fist fight" },
+            { "8", "Precision" },
+            { "9", "Magic spells" },
+            { "10", "Guardian power" },
+            { "11", "Prestigious" },
+            { "12", "Fate" }
+        };
         
         public static void ProcessOracleBlessings()
         {
+            LoadConfig();
+            
             if (!_oracleBlessingsClicked)
             {
                 GameObject oracleBlessingsButton = FindOracleBlessingsButton();
@@ -95,17 +118,17 @@ namespace FirestoneBot
                         var button = buyButton.GetComponent<UnityEngine.UI.Button>();
                         if (button != null && button.interactable)
                         {
+                            string blessingName = _blessingsList[_currentBlessingIndex].name;
+                            string displayName = GetBlessingDisplayName(blessingName);
                             button.onClick.Invoke();
-                            MelonLogger.Msg("Куплено улучшение blessing");
+                            MelonLogger.Msg($"Куплено благословение: {displayName}");
                         }
                         else
                         {
-                            DebugManager.DebugLog("Кнопка покупки неактивна");
+                            string blessingName = _blessingsList[_currentBlessingIndex].name;
+                            string displayName = GetBlessingDisplayName(blessingName);
+                            MelonLogger.Msg($"Недостаточно ресурсов для: {displayName}");
                         }
-                    }
-                    else
-                    {
-                        DebugManager.DebugLog("Кнопка покупки не найдена");
                     }
                     
                     CloseCurrentBlessingWindow();
@@ -160,9 +183,7 @@ namespace FirestoneBot
         private static GameObject[] FindBlessings()
         {
             GameObject[] allObjects = UnityEngine.Object.FindObjectsOfType<GameObject>();
-            System.Collections.Generic.List<GameObject> blessings = new System.Collections.Generic.List<GameObject>();
-            
-            DebugManager.DebugLog($"Проверяем {allObjects.Length} объектов");
+            System.Collections.Generic.List<(GameObject obj, int priority)> blessings = new();
             
             foreach (GameObject obj in allObjects)
             {
@@ -176,26 +197,26 @@ namespace FirestoneBot
                         current = current.parent;
                     }
                     
-                    // Показываем все объекты в пути Oracle
                     if (path.Contains("Oracle/submenus/bg/blessingsSubmenu/blessings/"))
                     {
-                        DebugManager.DebugLog($"Объект в пути blessings: {obj.name} - {path}");
-                        
                         var button = obj.GetComponent<UnityEngine.UI.Button>();
-                        if (button != null)
+                        if (button != null && button.interactable)
                         {
-                            DebugManager.DebugLog($"Объект {obj.name} имеет Button, interactable: {button.interactable}");
-                            if (button.interactable)
+                            int priority = GetBlessingPriority(obj.name);
+                            if (priority < 999)
                             {
-                                blessings.Add(obj);
+                                blessings.Add((obj, priority));
+                                string displayName = GetBlessingDisplayName(obj.name);
+                                MelonLogger.Msg($"Найдено благословение: {displayName} (приоритет: {priority})");
                             }
                         }
                     }
                 }
             }
             
-            DebugManager.DebugLog($"Найдено {blessings.Count} blessing");
-            return blessings.ToArray();
+            var sortedBlessings = blessings.OrderBy(x => x.priority).Select(x => x.obj).ToArray();
+            MelonLogger.Msg($"Найдено {sortedBlessings.Length} активных благословений");
+            return sortedBlessings;
         }
         
         private static GameObject FindBuyUpgradeButton()
@@ -304,6 +325,71 @@ namespace FirestoneBot
             {
                 MelonLogger.Error($"Ошибка закрытия окна: {ex.Message}");
             }
+        }
+        
+        private static void LoadConfig()
+        {
+            if (_blessingPriorities.Count > 0) return;
+            
+            try
+            {
+                if (!File.Exists(_configPath))
+                {
+                    MelonLogger.Warning($"Файл конфигурации {_configPath} не найден, используются значения по умолчанию");
+                    SetDefaultPriorities();
+                    return;
+                }
+                
+                var lines = File.ReadAllLines(_configPath);
+                foreach (var line in lines)
+                {
+                    if (line.StartsWith("#") || string.IsNullOrWhiteSpace(line)) continue;
+                    
+                    var parts = line.Split('=');
+                    if (parts.Length == 2 && int.TryParse(parts[1], out int priority))
+                    {
+                        _blessingPriorities[parts[0]] = priority;
+                    }
+                }
+                
+                MelonLogger.Msg($"Загружено {_blessingPriorities.Count} приоритетов благословений");
+            }
+            catch (System.Exception ex)
+            {
+                MelonLogger.Error($"Ошибка загрузки конфигурации: {ex.Message}");
+                SetDefaultPriorities();
+            }
+        }
+        
+        private static void SetDefaultPriorities()
+        {
+            _blessingPriorities = new System.Collections.Generic.Dictionary<string, int>
+            {
+                { "0", 1 }, { "1", 5 }, { "2", 6 }, { "3", 7 }, { "4", 2 },
+                { "5", 8 }, { "6", 3 }, { "7", 4 }, { "8", 9 }, { "9", 10 },
+                { "10", 11 }, { "11", 12 }, { "12", 13 }
+            };
+        }
+        
+        private static int GetBlessingPriority(string blessingName)
+        {
+            if (blessingName.StartsWith("blessing (") && blessingName.EndsWith(")"))
+            {
+                string index = blessingName.Substring(10, blessingName.Length - 11);
+                return _blessingPriorities.TryGetValue(index, out int priority) ? priority : 999;
+            }
+            return _blessingPriorities.TryGetValue(blessingName, out int p) ? p : 999;
+        }
+        
+        private static string GetBlessingDisplayName(string blessingName)
+        {
+            if (blessingName.StartsWith("blessing (") && blessingName.EndsWith(")"))
+            {
+                string index = blessingName.Substring(10, blessingName.Length - 11);
+                if (_blessingNames.TryGetValue(index, out string displayName))
+                    return $"blessing ({index}) - {displayName}";
+            }
+            return blessingName;
         }
         
         private static void ResetState()
