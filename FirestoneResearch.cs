@@ -69,6 +69,8 @@ namespace FirestoneBot
         
         public static void ProcessFirestoneResearch()
         {
+            // Принудительная перезагрузка конфигурации
+            _researchPriorities.Clear();
             LoadConfig();
             
             switch (_state)
@@ -103,12 +105,13 @@ namespace FirestoneBot
                     if (_researchButtons != null && _currentResearchIndex < _researchButtons.Length)
                     {
                         var researchBtn = _researchButtons[_currentResearchIndex];
-                        DebugManager.DebugLog($"Processing research {_currentResearchIndex + 1}/{_researchButtons.Length}: {researchBtn.name}");
+                        string key = ExtractResearchKey(researchBtn.name, GetPath(researchBtn.transform));
+                        int priority = GetResearchPriority(researchBtn.name, GetPath(researchBtn.transform));
                         
                         if (GameUtils.ClickButton(researchBtn))
                         {
                             string displayName = GetResearchDisplayName(researchBtn.name, GetPath(researchBtn.transform));
-                            MelonLogger.Msg($"Открыто исследование: {displayName}");
+                            MelonLogger.Msg($"Открыто исследование: {key} - {displayName} (приоритет: {priority})");
                             _waitTimer = Time.time + 0.1f;
                             _state = State.WaitForResearchWindow;
                         }
@@ -133,8 +136,9 @@ namespace FirestoneBot
                     var startBtn = GameUtils.FindButton("researchActivateButton");
                     if (startBtn != null)
                     {
+                        string key = ExtractResearchKey(_researchButtons[_currentResearchIndex].name, GetPath(_researchButtons[_currentResearchIndex].transform));
                         string displayName = GetResearchDisplayName(_researchButtons[_currentResearchIndex].name, GetPath(_researchButtons[_currentResearchIndex].transform));
-                        MelonLogger.Msg($"Запущено исследование: {displayName}");
+                        MelonLogger.Msg($"Запущено исследование: {key} - {displayName}");
                         GameUtils.ClickButton(startBtn);
                         _state = State.Complete;
                     }
@@ -198,7 +202,7 @@ namespace FirestoneBot
         
         private static GameObject[] FindAndSortResearchButtons()
         {
-            var buttons = new System.Collections.Generic.List<(GameObject obj, int priority)>();
+            var buttons = new System.Collections.Generic.List<(GameObject obj, int priority, string key)>();
             var allButtons = UnityEngine.Object.FindObjectsOfType<UnityEngine.UI.Button>();
             
             foreach (var button in allButtons)
@@ -212,18 +216,23 @@ namespace FirestoneBot
                     if (nameMatch && pathMatch)
                     {
                         int priority = GetResearchPriority(button.name, path);
+                        string key = ExtractResearchKey(button.name, path);
                         if (priority < 999)
                         {
-                            buttons.Add((button.gameObject, priority));
+                            buttons.Add((button.gameObject, priority, key));
                             string displayName = GetResearchDisplayName(button.name, path);
-                            DebugManager.DebugLog($"Найдено исследование: {displayName} (приоритет: {priority})");
+                            DebugManager.DebugLog($"Найдено исследование: {key} - {displayName} (приоритет: {priority})");
                         }
                     }
                 }
             }
             
             var sortedButtons = buttons.OrderBy(x => x.priority).Select(x => x.obj).ToArray();
-            DebugManager.DebugLog($"Найдено {sortedButtons.Length} активных исследований");
+            DebugManager.DebugLog($"Порядок выполнения исследований:");
+            foreach (var btn in buttons.OrderBy(x => x.priority))
+            {
+                DebugManager.DebugLog($"  {btn.key} (приоритет: {btn.priority})");
+            }
             return sortedButtons;
         }
         
@@ -252,8 +261,6 @@ namespace FirestoneBot
         
         private static void LoadConfig()
         {
-            if (_researchPriorities.Count > 0) return;
-            
             try
             {
                 if (!File.Exists(_configPath))
@@ -264,14 +271,21 @@ namespace FirestoneBot
                 }
                 
                 var lines = File.ReadAllLines(_configPath);
+                
                 foreach (var line in lines)
                 {
                     if (line.StartsWith("#") || string.IsNullOrWhiteSpace(line)) continue;
                     
                     var parts = line.Split('=');
-                    if (parts.Length == 2 && int.TryParse(parts[1], out int priority))
+                    if (parts.Length == 2)
                     {
-                        _researchPriorities[parts[0]] = priority;
+                        var key = parts[0].Trim();
+                        var valueStr = parts[1].Split('#')[0].Trim();
+                        
+                        if (int.TryParse(valueStr, out int priority))
+                        {
+                            _researchPriorities[key] = priority;
+                        }
                     }
                 }
                 

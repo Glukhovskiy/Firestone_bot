@@ -203,11 +203,16 @@ namespace FirestoneBot
                         if (button != null && button.interactable)
                         {
                             int priority = GetBlessingPriority(obj.name);
+                            string displayName = GetBlessingDisplayName(obj.name);
+                            DebugManager.DebugLog($"Обработка благословения: {obj.name} -> приоритет: {priority}");
                             if (priority < 999)
                             {
                                 blessings.Add((obj, priority));
-                                string displayName = GetBlessingDisplayName(obj.name);
                                 MelonLogger.Msg($"Найдено благословение: {displayName} (приоритет: {priority})");
+                            }
+                            else
+                            {
+                                DebugManager.DebugLog($"Благословение пропущено (приоритет 999): {displayName}");
                             }
                         }
                     }
@@ -329,7 +334,8 @@ namespace FirestoneBot
         
         private static void LoadConfig()
         {
-            if (_blessingPriorities.Count > 0) return;
+            // Принудительная перезагрузка конфигурации
+            _blessingPriorities.Clear();
             
             try
             {
@@ -376,9 +382,9 @@ namespace FirestoneBot
             if (blessingName.StartsWith("blessing (") && blessingName.EndsWith(")"))
             {
                 string index = blessingName.Substring(10, blessingName.Length - 11);
-                return _blessingPriorities.TryGetValue(index, out int priority) ? priority : 999;
+                return _blessingPriorities.TryGetValue(index, out int priority) ? priority : 998;
             }
-            return _blessingPriorities.TryGetValue(blessingName, out int p) ? p : 999;
+            return _blessingPriorities.TryGetValue(blessingName, out int p) ? p : 998;
         }
         
         private static string GetBlessingDisplayName(string blessingName)
