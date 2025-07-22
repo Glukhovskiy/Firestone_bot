@@ -150,7 +150,7 @@ closeWindows=false
 - сборанная [Fireston_bot.dll](https://github.com/Glukhovskiy/Firestone_bot/releases/latest)
 ## Версия
 
-Текущая версия: **release-0.12.3**
+Текущая версия: **release-0.12.4**
 
 ## Поддержка
 

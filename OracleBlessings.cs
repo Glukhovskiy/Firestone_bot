@@ -339,6 +339,9 @@ namespace FirestoneBot
             
             try
             {
+                DebugManager.DebugLog($"Попытка загрузки конфигурации из: {_configPath}");
+                DebugManager.DebugLog($"Файл существует: {File.Exists(_configPath)}");
+                
                 if (!File.Exists(_configPath))
                 {
                     MelonLogger.Warning($"Файл конфигурации {_configPath} не найден, используются значения по умолчанию");
@@ -347,14 +350,19 @@ namespace FirestoneBot
                 }
                 
                 var lines = File.ReadAllLines(_configPath);
+                DebugManager.DebugLog($"Прочитано {lines.Length} строк из конфига");
+                
                 foreach (var line in lines)
                 {
+                    DebugManager.DebugLog($"Обработка строки: '{line}'");
                     if (line.StartsWith("#") || string.IsNullOrWhiteSpace(line)) continue;
                     
                     var parts = line.Split('=');
-                    if (parts.Length == 2 && int.TryParse(parts[1], out int priority))
+                    if (parts.Length == 2 && int.TryParse(parts[1].Split('#')[0].Trim(), out int priority))
                     {
-                        _blessingPriorities[parts[0]] = priority;
+                        string key = parts[0].Trim();
+                        _blessingPriorities[key] = priority;
+                        DebugManager.DebugLog($"Добавлен приоритет: {key} = {priority}");
                     }
                 }
                 

@@ -134,6 +134,9 @@ namespace FirestoneBot
         {
             DebugManager.DebugLog("[MapMissions] Поиск missionBase объектов на карте");
             
+            // Логируем все найденные миссии для отладки
+            MissionDebugger.LogAllMissions();
+            
             var allObjects = UnityEngine.Object.FindObjectsOfType<GameObject>();
             
             foreach (var obj in allObjects)
@@ -261,6 +264,7 @@ namespace FirestoneBot
             _interactionMethod = 0;
             _activeMissionIndex = 0;
             _processedMissions.Clear();
+            MissionDebugger.ClearLoggedMissions();
         }
     }
 }
