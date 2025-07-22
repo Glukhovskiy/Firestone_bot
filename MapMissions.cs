@@ -134,8 +134,7 @@ namespace FirestoneBot
         {
             DebugManager.DebugLog("[MapMissions] Поиск missionBase объектов на карте");
             
-            // Логируем все найденные миссии для отладки
-            MissionDebugger.LogAllMissions();
+
             
             var allObjects = UnityEngine.Object.FindObjectsOfType<GameObject>();
             
@@ -173,6 +172,8 @@ namespace FirestoneBot
         
         private static void HandleMissionPreviewWindow()
         {
+            MissionIdentifier.IdentifyMission(_currentMission);
+            
             var startButton = GameUtils.FindByPath("menusRoot/menuCanvasParent/SafeArea/menuCanvas/popups/PreviewMission/bg/managementBg/startMissionButton");
             
             if (startButton != null)
@@ -264,7 +265,7 @@ namespace FirestoneBot
             _interactionMethod = 0;
             _activeMissionIndex = 0;
             _processedMissions.Clear();
-            MissionDebugger.ClearLoggedMissions();
+
         }
     }
 }
