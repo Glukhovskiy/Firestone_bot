@@ -95,6 +95,12 @@ namespace FirestoneBot
         {
             try
             {
+                if (File.Exists(_logPath))
+                {
+                    var existingLines = File.ReadAllLines(_logPath);
+                    if (Array.Exists(existingLines, line => line == logEntry))
+                        return;
+                }
                 File.AppendAllText(_logPath, logEntry + Environment.NewLine);
             }
             catch (Exception ex)

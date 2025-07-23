@@ -174,7 +174,6 @@ namespace FirestoneBot
                 if (collectButton != null)
                 {
                     _collectButtonSeen = true;
-                    MelonLogger.Msg("Нажата кнопка collectButton");
                     GameUtils.ClickButton(collectButton);
                     _collectButtonTime = Time.time + 0.2f;
                     return false;
@@ -263,6 +262,7 @@ namespace FirestoneBot
         public bool alchemy { get; set; } = true;
         public bool engineer { get; set; } = true;
         public bool closeWindows { get; set; } = false;
+        public string MissionTypesPriority { get; set; } = "(Scout=1, Adventure=2, War=3)";
     }
 
     public class BotController : MonoBehaviour

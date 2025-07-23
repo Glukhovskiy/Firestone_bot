@@ -111,7 +111,7 @@ namespace FirestoneBot
                         if (GameUtils.ClickButton(researchBtn))
                         {
                             string displayName = GetResearchDisplayName(researchBtn.name, GetPath(researchBtn.transform));
-                            MelonLogger.Msg($"Открыто исследование: {key} - {displayName} (приоритет: {priority})");
+                            DebugManager.DebugLog($"Открыто исследование: {key} - {displayName} (приоритет: {priority})");
                             _waitTimer = Time.time + 0.1f;
                             _state = State.WaitForResearchWindow;
                         }
