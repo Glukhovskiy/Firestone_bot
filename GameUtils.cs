@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using MelonLoader;
 
-namespace FirestoneBot
+namespace Firestone_bot
 {
     public static class GameUtils
     {

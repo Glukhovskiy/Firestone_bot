@@ -3,7 +3,7 @@ using UnityEngine;
 using System.IO;
 using System.Linq;
 
-namespace FirestoneBot
+namespace Firestone_bot
 {
     public static class FirestoneResearch
     {

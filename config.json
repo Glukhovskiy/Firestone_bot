@@ -4,7 +4,7 @@ debugEnabled=true
 guildExpeditions=true
 mapMissions=true
 dailyTasks=true
-meteorite Research=true
+meteoriteResearch=true
 firestoneResearch=true
 mysteryBox=true
 checkIn=true
@@ -15,4 +15,6 @@ upgrades=true
 chests=true
 tanks=false
 alchemy=true
+engineer=true
+closeWindows=false
 MissionTypesPriority=(Scout=1, Adventure=2, War=3)

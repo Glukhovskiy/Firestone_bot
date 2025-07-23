@@ -2,7 +2,7 @@ using MelonLoader;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace FirestoneBot
+namespace Firestone_bot
 {
     public static class DebugManager
     {

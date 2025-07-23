@@ -1,7 +1,7 @@
 using MelonLoader;
 using UnityEngine;
 
-namespace FirestoneBot
+namespace Firestone_bot
 {
     public static class DailyTasks
     {
@@ -174,7 +174,7 @@ namespace FirestoneBot
         private static GameObject[] FindWeeklyClaimButtons()
         {
             GameObject[] allObjects = UnityEngine.Object.FindObjectsOfType<GameObject>();
-            System.Collections.Generic.List<GameObject> claimButtons = new System.Collections.Generic.List<GameObject>();
+            System.Collections.Generic.List<GameObject> claimButtons = new();
             
             foreach (GameObject obj in allObjects)
             {
@@ -205,7 +205,7 @@ namespace FirestoneBot
         private static GameObject[] FindClaimButtons()
         {
             GameObject[] allObjects = UnityEngine.Object.FindObjectsOfType<GameObject>();
-            System.Collections.Generic.List<GameObject> claimButtons = new System.Collections.Generic.List<GameObject>();
+            System.Collections.Generic.List<GameObject> claimButtons = new();
             
             foreach (GameObject obj in allObjects)
             {

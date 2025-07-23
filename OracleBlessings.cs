@@ -3,7 +3,7 @@ using UnityEngine;
 using System.IO;
 using System.Linq;
 
-namespace FirestoneBot
+namespace Firestone_bot
 {
     public static class OracleBlessings
     {
@@ -98,7 +98,8 @@ namespace FirestoneBot
                             button.onClick.Invoke();
                             _blessingWindowOpened = true;
                             _blessingOpenTime = Time.time;
-                            MelonLogger.Msg($"Открыто blessing {_currentBlessingIndex + 1}");
+                            string displayName = GetBlessingDisplayName(currentBlessing.name);
+                            MelonLogger.Msg($"Открыто {displayName}");
                         }
                         else
                         {

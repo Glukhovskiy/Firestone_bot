@@ -5,7 +5,7 @@ using Il2CppSystem.Collections.Generic;
 using System.Reflection;
 using System.Collections;
 
-namespace FirestoneBot
+namespace Firestone_bot
 {
     public static class MapMissions
     {
