@@ -12,8 +12,7 @@ namespace Firestone_bot
         private static float _waitTimer = 0f;
         private static GameObject[] _researchButtons = null;
         private static int _currentResearchIndex = 0;
-        private static System.Collections.Generic.Dictionary<string, int> _researchPriorities = new();
-        private static string _configPath = "Mods/FirestoneResearch.conf";
+
         
         private static readonly System.Collections.Generic.Dictionary<string, string> _researchNames = new()
         {
@@ -69,9 +68,6 @@ namespace Firestone_bot
         
         public static void ProcessFirestoneResearch()
         {
-            // Принудительная перезагрузка конфигурации
-            _researchPriorities.Clear();
-            LoadConfig();
             
             switch (_state)
             {
@@ -259,57 +255,12 @@ namespace Firestone_bot
             return buttons.ToArray();
         }
         
-        private static void LoadConfig()
-        {
-            try
-            {
-                if (!File.Exists(_configPath))
-                {
-                    MelonLogger.Warning($"Файл конфигурации {_configPath} не найден, используются значения по умолчанию");
-                    SetDefaultPriorities();
-                    return;
-                }
-                
-                var lines = File.ReadAllLines(_configPath);
-                
-                foreach (var line in lines)
-                {
-                    if (line.StartsWith("#") || string.IsNullOrWhiteSpace(line)) continue;
-                    
-                    var parts = line.Split('=');
-                    if (parts.Length == 2)
-                    {
-                        var key = parts[0].Trim();
-                        var valueStr = parts[1].Split('#')[0].Trim();
-                        
-                        if (int.TryParse(valueStr, out int priority))
-                        {
-                            _researchPriorities[key] = priority;
-                        }
-                    }
-                }
-                
-                DebugManager.DebugLog($"Загружено {_researchPriorities.Count} приоритетов исследований");
-            }
-            catch (System.Exception ex)
-            {
-                MelonLogger.Error($"Ошибка загрузки конфигурации: {ex.Message}");
-                SetDefaultPriorities();
-            }
-        }
-        
-        private static void SetDefaultPriorities()
-        {
-            _researchPriorities = new System.Collections.Generic.Dictionary<string, int>
-            {
-                { "1/0", 1 }, { "3/0", 2 }, { "2/0", 3 }, { "4/0", 4 }, { "1/1", 5 }
-            };
-        }
+
         
         private static int GetResearchPriority(string buttonName, string path)
         {
             var key = ExtractResearchKey(buttonName, path);
-            return _researchPriorities.TryGetValue(key, out int priority) ? priority : 998;
+            return ConfigManager.Config.FirestoneResearch.TryGetValue(key, out int priority) ? priority : 998;
         }
         
         private static string GetResearchDisplayName(string buttonName, string path)

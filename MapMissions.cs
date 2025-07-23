@@ -201,48 +201,8 @@ namespace Firestone_bot
         
         private static void LoadMissionPriorities()
         {
-            _missionPriorities.Clear();
-            DebugManager.DebugLog("[MapMissions] Начало загрузки приоритетов миссий");
-            try
-            {
-                var configPath = "Mods/config.json";
-                DebugManager.DebugLog($"[MapMissions] Проверка файла: {configPath}, существует: {System.IO.File.Exists(configPath)}");
-                if (System.IO.File.Exists(configPath))
-                {
-                    var lines = System.IO.File.ReadAllLines(configPath);
-                    DebugManager.DebugLog($"[MapMissions] Прочитано {lines.Length} строк из конфига");
-                    foreach (var line in lines)
-                    {
-                        DebugManager.DebugLog($"[MapMissions] Обработка строки: '{line}'");
-                        var parts = line.Split(new char[] {'='}, 2);
-                        DebugManager.DebugLog($"[MapMissions] Разделено на {parts.Length} частей, первая часть: '{parts[0].Trim()}'");
-                        if (parts.Length == 2 && parts[0].Trim().Equals("MissionTypesPriority", System.StringComparison.OrdinalIgnoreCase))
-                        {
-                            var priorityString = parts[1].Trim().Trim('(', ')');
-                            DebugManager.DebugLog($"[MapMissions] Парсинг строки приоритетов: '{priorityString}'");
-                            var priorityPairs = priorityString.Split(',');
-                            
-                            foreach (var pair in priorityPairs)
-                            {
-                                var keyValue = pair.Split('=');
-                                DebugManager.DebugLog($"[MapMissions] Обработка пары: '{pair}', частей: {keyValue.Length}");
-                                if (keyValue.Length == 2 && int.TryParse(keyValue[1].Trim(), out int priority))
-                                {
-                                    var key = keyValue[0].Trim().ToLower();
-                                    _missionPriorities[key] = priority;
-                                    DebugManager.DebugLog($"[MapMissions] Добавлен приоритет: '{key}' = {priority}");
-                                }
-                            }
-                            break;
-                        }
-                    }
-                    DebugManager.DebugLog($"[MapMissions] Загружено {_missionPriorities.Count} приоритетов миссий");
-                }
-            }
-            catch (System.Exception ex)
-            {
-                MelonLogger.Error($"Ошибка загрузки приоритетов: {ex.Message}");
-            }
+            _missionPriorities = ConfigManager.Config.MissionPriorities;
+            DebugManager.DebugLog($"[MapMissions] Загружено {_missionPriorities.Count} приоритетов миссий");
         }
         
         private static string ExtractMissionKey(string path)

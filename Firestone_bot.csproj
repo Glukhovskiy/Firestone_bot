@@ -9,7 +9,6 @@
   <ItemGroup>
     <PackageReference Include="Il2CppInterop.Runtime" Version="1.5.0" />
     <PackageReference Include="LavaGang.MelonLoader" Version="0.7.1" />
-
   </ItemGroup>
 
   <PropertyGroup>

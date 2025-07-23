@@ -32,9 +32,14 @@ namespace Firestone_bot
                     if (Time.time >= _waitTimer)
                     {
                         var claimButton = GameUtils.FindByPath("menusRoot/menuCanvasParent/SafeArea/menuCanvas/menus/WorldMap/submenus/warfrontCampaignSubmenu/loot/claimButton");
+                        DebugManager.DebugLog($"claimButton найдена: {claimButton != null}");
                         if (GameUtils.ClickButton(claimButton))
                         {
                             MelonLogger.Msg("Награда за танки собрана");
+                        }
+                        else
+                        {
+                            DebugManager.DebugLog("claimButton не найдена или не нажата");
                         }
                         _waitTimer = Time.time + 0.2f;
                         _state = State.OpenDailyMissions;
@@ -45,6 +50,7 @@ namespace Firestone_bot
                     if (Time.time >= _waitTimer)
                     {
                         var dailyMissionsButton = GameUtils.FindByPath("menusRoot/menuCanvasParent/SafeArea/menuCanvas/menus/WorldMap/submenus/warfrontCampaignSubmenu/dailyMissionsButton");
+                        DebugManager.DebugLog($"dailyMissionsButton найдена: {dailyMissionsButton != null}");
                         if (GameUtils.ClickButton(dailyMissionsButton))
                         {
                             MelonLogger.Msg("Открыты ежедневные миссии");
@@ -53,6 +59,7 @@ namespace Firestone_bot
                         }
                         else
                         {
+                            DebugManager.DebugLog("dailyMissionsButton не найдена или не нажата, закрываем окно");
                             _state = State.CloseWindow;
                         }
                     }
@@ -95,6 +102,11 @@ namespace Firestone_bot
                     {
                         MelonLogger.Msg("Бой завершен, окно закрыто");
                         _state = _currentMissionIndex < 100 ? State.ProcessDungeonFights : State.ProcessLiberationFights;
+                    }
+                    else if (Time.time - _waitTimer > 10f)
+                    {
+                        MelonLogger.Msg("Таймаут ожидания результата боя, продолжаем");
+                        _state = State.CloseDungeonMissions;
                     }
                     break;
                     
