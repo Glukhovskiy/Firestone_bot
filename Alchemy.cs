@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace FirestoneBot
+namespace Firestone_bot
 {
     public static class Alchemy
     {

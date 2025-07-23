@@ -1,7 +1,7 @@
 using MelonLoader;
 using UnityEngine;
 
-namespace FirestoneBot
+namespace Firestone_bot
 {
     public static class OraclesGift
     {

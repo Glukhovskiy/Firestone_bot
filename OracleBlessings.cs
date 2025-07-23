@@ -3,7 +3,7 @@ using UnityEngine;
 using System.IO;
 using System.Linq;
 
-namespace FirestoneBot
+namespace Firestone_bot
 {
     public static class OracleBlessings
     {
@@ -13,8 +13,7 @@ namespace FirestoneBot
         private static int _currentBlessingIndex = 0;
         private static bool _blessingWindowOpened = false;
         private static float _blessingOpenTime = 0f;
-        private static System.Collections.Generic.Dictionary<string, int> _blessingPriorities = new();
-        private static string _configPath = "Mods/OracleBlessings.conf";
+
         
         private static readonly System.Collections.Generic.Dictionary<string, string> _blessingNames = new()
         {
@@ -35,7 +34,6 @@ namespace FirestoneBot
         
         public static void ProcessOracleBlessings()
         {
-            LoadConfig();
             
             if (!_oracleBlessingsClicked)
             {
@@ -98,7 +96,8 @@ namespace FirestoneBot
                             button.onClick.Invoke();
                             _blessingWindowOpened = true;
                             _blessingOpenTime = Time.time;
-                            MelonLogger.Msg($"Открыто blessing {_currentBlessingIndex + 1}");
+                            string displayName = GetBlessingDisplayName(currentBlessing.name);
+                            MelonLogger.Msg($"Открыто {displayName}");
                         }
                         else
                         {
@@ -332,67 +331,16 @@ namespace FirestoneBot
             }
         }
         
-        private static void LoadConfig()
-        {
-            // Принудительная перезагрузка конфигурации
-            _blessingPriorities.Clear();
-            
-            try
-            {
-                DebugManager.DebugLog($"Попытка загрузки конфигурации из: {_configPath}");
-                DebugManager.DebugLog($"Файл существует: {File.Exists(_configPath)}");
-                
-                if (!File.Exists(_configPath))
-                {
-                    MelonLogger.Warning($"Файл конфигурации {_configPath} не найден, используются значения по умолчанию");
-                    SetDefaultPriorities();
-                    return;
-                }
-                
-                var lines = File.ReadAllLines(_configPath);
-                DebugManager.DebugLog($"Прочитано {lines.Length} строк из конфига");
-                
-                foreach (var line in lines)
-                {
-                    DebugManager.DebugLog($"Обработка строки: '{line}'");
-                    if (line.StartsWith("#") || string.IsNullOrWhiteSpace(line)) continue;
-                    
-                    var parts = line.Split('=');
-                    if (parts.Length == 2 && int.TryParse(parts[1].Split('#')[0].Trim(), out int priority))
-                    {
-                        string key = parts[0].Trim();
-                        _blessingPriorities[key] = priority;
-                        DebugManager.DebugLog($"Добавлен приоритет: {key} = {priority}");
-                    }
-                }
-                
-                DebugManager.DebugLog($"Загружено {_blessingPriorities.Count} приоритетов благословений");
-            }
-            catch (System.Exception ex)
-            {
-                MelonLogger.Error($"Ошибка загрузки конфигурации: {ex.Message}");
-                SetDefaultPriorities();
-            }
-        }
-        
-        private static void SetDefaultPriorities()
-        {
-            _blessingPriorities = new System.Collections.Generic.Dictionary<string, int>
-            {
-                { "0", 1 }, { "1", 5 }, { "2", 6 }, { "3", 7 }, { "4", 2 },
-                { "5", 8 }, { "6", 3 }, { "7", 4 }, { "8", 9 }, { "9", 10 },
-                { "10", 11 }, { "11", 12 }, { "12", 13 }
-            };
-        }
+
         
         private static int GetBlessingPriority(string blessingName)
         {
             if (blessingName.StartsWith("blessing (") && blessingName.EndsWith(")"))
             {
                 string index = blessingName.Substring(10, blessingName.Length - 11);
-                return _blessingPriorities.TryGetValue(index, out int priority) ? priority : 998;
+                return ConfigManager.Config.OracleBlessings.TryGetValue(index, out int priority) ? priority : 998;
             }
-            return _blessingPriorities.TryGetValue(blessingName, out int p) ? p : 998;
+            return ConfigManager.Config.OracleBlessings.TryGetValue(blessingName, out int p) ? p : 998;
         }
         
         private static string GetBlessingDisplayName(string blessingName)

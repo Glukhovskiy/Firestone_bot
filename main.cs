@@ -3,46 +3,46 @@ using MelonLoader;
 using UnityEngine;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
+using System.Text.Json;
 
-[assembly: MelonInfo(typeof(FirestoneBot.BotMain), "Firestone Bot", "0.13.0", "GenleDevil")]
+[assembly: MelonInfo(typeof(Firestone_bot.BotMain), "Firestone Bot", "0.13.1", "GentleDevil")]
 [assembly: MelonGame("HolydayStudios", "Firestone")]
 
-namespace FirestoneBot
+namespace Firestone_bot
 {
     public class BotMain : MelonMod
     {
         private static BotController _botController;
-        private static BotConfig _config;
-        private static string _configPath = "Mods/config.json";
         private static BotFunction _currentFunction = BotFunction.GuildExpeditions;
         
         private static readonly System.Collections.Generic.Dictionary<BotFunction, (System.Func<bool> IsEnabled, System.Action Process)> _modules = new()
         {
-            { BotFunction.GuildExpeditions, (() => _config.guildExpeditions, GuildExpeditions.ProcessExpeditions) },
-            { BotFunction.MapMissions, (() => _config.mapMissions, MapMissions.ProcessMapMissions) },
-            { BotFunction.DailyTasks, (() => _config.dailyTasks, DailyTasks.ProcessDailyTasks) },
-            { BotFunction.MeteoriteResearch, (() => _config.meteoriteResearch, MeteoriteResearch.ProcessMeteoriteResearch) },
-            { BotFunction.FirestoneResearch, (() => _config.firestoneResearch, FirestoneResearch.ProcessFirestoneResearch) },
-            { BotFunction.MysteryBox, (() => _config.mysteryBox, MysteryBox.ProcessMysteryBox) },
-            { BotFunction.CheckIn, (() => _config.checkIn, CheckIn.ProcessCheckIn) },
-            { BotFunction.OracleRituals, (() => _config.oracleRituals, OracleRituals.ProcessOracleRituals) },
-            { BotFunction.OraclesGift, (() => _config.oraclesGift, OraclesGift.ProcessOraclesGift) },
-            { BotFunction.OracleBlessings, (() => _config.oracleBlessings, OracleBlessings.ProcessOracleBlessings) },
-            { BotFunction.Upgrades, (() => _config.upgrades, Upgrades.ProcessUpgrades) },
-            { BotFunction.Chests, (() => _config.chests, Chests.ProcessChests) },
-            { BotFunction.Tanks, (() => _config.tanks, Tanks.ProcessTanks) },
-            { BotFunction.Alchemy, (() => _config.alchemy, Alchemy.ProcessAlchemy) },
-            { BotFunction.Engineer, (() => _config.engineer, Engineer.ProcessEngineer) },
-            { BotFunction.CloseWindows, (() => _config.closeWindows, CloseWindows.CloseAllWindows) }
+            { BotFunction.GuildExpeditions, (() => ConfigManager.Config.Bot.GuildExpeditions, GuildExpeditions.ProcessExpeditions) },
+            { BotFunction.MapMissions, (() => ConfigManager.Config.Bot.MapMissions, MapMissions.ProcessMapMissions) },
+            { BotFunction.DailyTasks, (() => ConfigManager.Config.Bot.DailyTasks, DailyTasks.ProcessDailyTasks) },
+            { BotFunction.MeteoriteResearch, (() => ConfigManager.Config.Bot.MeteoriteResearch, MeteoriteResearch.ProcessMeteoriteResearch) },
+            { BotFunction.FirestoneResearch, (() => ConfigManager.Config.Bot.FirestoneResearch, FirestoneResearch.ProcessFirestoneResearch) },
+            { BotFunction.MysteryBox, (() => ConfigManager.Config.Bot.MysteryBox, MysteryBox.ProcessMysteryBox) },
+            { BotFunction.CheckIn, (() => ConfigManager.Config.Bot.CheckIn, CheckIn.ProcessCheckIn) },
+            { BotFunction.OracleRituals, (() => ConfigManager.Config.Bot.OracleRituals, OracleRituals.ProcessOracleRituals) },
+            { BotFunction.OraclesGift, (() => ConfigManager.Config.Bot.OraclesGift, OraclesGift.ProcessOraclesGift) },
+            { BotFunction.OracleBlessings, (() => ConfigManager.Config.Bot.OracleBlessings, OracleBlessings.ProcessOracleBlessings) },
+            { BotFunction.Upgrades, (() => ConfigManager.Config.Bot.Upgrades, Upgrades.ProcessUpgrades) },
+            { BotFunction.Chests, (() => ConfigManager.Config.Bot.Chests, Chests.ProcessChests) },
+            { BotFunction.Tanks, (() => ConfigManager.Config.Bot.Tanks, Tanks.ProcessTanks) },
+            { BotFunction.Alchemy, (() => ConfigManager.Config.Bot.Alchemy, Alchemy.ProcessAlchemy) },
+            { BotFunction.Engineer, (() => ConfigManager.Config.Bot.Engineer, Engineer.ProcessEngineer) },
+            { BotFunction.CloseWindows, (() => ConfigManager.Config.Bot.CloseWindows, CloseWindows.CloseAllWindows) }
         };
 
-        [System.Obsolete]
+        [System.Obsolete("Переопределяет устаревший метод MelonBase.OnApplicationStart()")]
         public override void OnApplicationStart()
         {
             ClassInjector.RegisterTypeInIl2Cpp<BotController>();
             var botGO = new GameObject("BotController");
             _botController = botGO.AddComponent<BotController>();
-            LoadConfig();
+            LogModulesStatus();
             MelonLogger.Msg("Бот инициализирован!\nF5 - Включить/Выключить бота\nF7 - Включить/Выключить модуль Chests\nF8 - Включить/Выключить модуль Debug");
         }
 
@@ -52,20 +52,20 @@ namespace FirestoneBot
             {
                 if (Input.GetKeyDown(KeyCode.F5))
                 {
-                    _config.enabled = !_config.enabled;
-                    MelonLogger.Msg(_config.enabled ? "Бот включен" : "Бот выключен");
+                    ConfigManager.Config.Bot.Enabled = !ConfigManager.Config.Bot.Enabled;
+                    MelonLogger.Msg(ConfigManager.Config.Bot.Enabled ? "Бот включен" : "Бот выключен");
                 }
                 
                 if (Input.GetKeyDown(KeyCode.F7))
                 {
-                    _config.chests = !_config.chests;
-                    MelonLogger.Msg(_config.chests ? "Модуль Chests включен" : "Модуль Chests выключен");
+                    ConfigManager.Config.Bot.Chests = !ConfigManager.Config.Bot.Chests;
+                    MelonLogger.Msg(ConfigManager.Config.Bot.Chests ? "Модуль Chests включен" : "Модуль Chests выключен");
                 }
 
-                if (_config.debugEnabled)
+                if (ConfigManager.Config.Bot.DebugEnabled)
                     DebugManager.CheckDebugToggle();
                 
-                if (!_config.enabled) return;
+                if (!ConfigManager.Config.Bot.Enabled) return;
                 
                 // Проверяем, что игра готова
                 if (!IsGameReady()) return;
@@ -86,38 +86,7 @@ namespace FirestoneBot
 
 
 
-        static void LoadConfig()
-        {
-            try
-            {
-                _config = new BotConfig();
-                if (!File.Exists(_configPath))
-                {
-                    SaveConfig();
-                    return;
-                }
-                
-                var lines = File.ReadAllLines(_configPath);
-                var properties = typeof(BotConfig).GetProperties();
-                
-                foreach (var line in lines)
-                {
-                    var parts = line.Split('=');
-                    if (parts.Length != 2) continue;
-                    
-                    var prop = properties.FirstOrDefault(p => p.Name.Equals(parts[0], System.StringComparison.OrdinalIgnoreCase));
-                    if (prop != null)
-                    {
-                        var value = prop.PropertyType == typeof(bool) ? parts[1] == "true" : (object)parts[1];
-                        prop.SetValue(_config, value);
-                    }
-                }
-            }
-            catch
-            {
-                _config = new BotConfig();
-            }
-        }
+
 
         public static void NextFunction()
         {
@@ -143,24 +112,25 @@ namespace FirestoneBot
             };
         }
 
-        static void SaveConfig()
+        static void LogModulesStatus()
         {
-            try
+            var enabled = new System.Collections.Generic.List<string>();
+            var disabled = new System.Collections.Generic.List<string>();
+            
+            foreach (var module in _modules)
             {
-                var properties = typeof(BotConfig).GetProperties();
-                var lines = properties.Select(prop => 
-                {
-                    var value = prop.GetValue(_config);
-                    return $"{prop.Name}={value?.ToString().ToLower()}";
-                }).ToArray();
-                
-                File.WriteAllLines(_configPath, lines);
+                if (module.Value.IsEnabled())
+                    enabled.Add(module.Key.ToString());
+                else
+                    disabled.Add(module.Key.ToString());
             }
-            catch (System.Exception ex)
-            {
-                MelonLogger.Error($"Ошибка сохранения конфига: {ex.Message}");
-            }
+            
+            MelonLogger.Msg($"Включено ({enabled.Count}): {string.Join("\n ", enabled)}");
+            if (disabled.Count > 0)
+                MelonLogger.Msg($"Отключено ({disabled.Count}): {string.Join("\n ", disabled)}");
         }
+
+
 
         private static bool _collectButtonSeen = false;
         private static float _collectButtonTime = 0f;
@@ -212,8 +182,9 @@ namespace FirestoneBot
                 // Игра готова к работе бота
                 return _collectButtonSeen && _collectButtonTime == 0f;
             }
-            catch
+            catch (System.Exception ex)
             {
+                MelonLogger.Error($"Ошибка проверки готовности игры: {ex.Message}");
                 return false;
             }
         }
@@ -241,29 +212,7 @@ namespace FirestoneBot
         CloseWindows
     }
     
-    public class BotConfig
-    {
-        public bool enabled { get; set; } = true;
-        public string logLevel { get; set; } = "info";
-        public bool debugEnabled { get; set; } = true;
-        public bool guildExpeditions { get; set; } = true;
-        public bool mapMissions { get; set; } = true;
-        public bool dailyTasks { get; set; } = true;
-        public bool meteoriteResearch { get; set; } = true;
-        public bool firestoneResearch { get; set; } = true;
-        public bool mysteryBox { get; set; } = true;
-        public bool checkIn { get; set; } = true;
-        public bool oracleRituals { get; set; } = true;
-        public bool oraclesGift { get; set; } = true;
-        public bool oracleBlessings { get; set; } = true;
-        public bool upgrades { get; set; } = true;
-        public bool chests { get; set; } = true;
-        public bool tanks { get; set; } = false;
-        public bool alchemy { get; set; } = true;
-        public bool engineer { get; set; } = true;
-        public bool closeWindows { get; set; } = false;
-        public string MissionTypesPriority { get; set; } = "(Scout=1, Adventure=2, War=3)";
-    }
+
 
     public class BotController : MonoBehaviour
     {
@@ -271,6 +220,108 @@ namespace FirestoneBot
         {
             UnityEngine.Object.DontDestroyOnLoad(this.gameObject);
             MelonLogger.Msg("BotController запущен");
+        }
+    }
+
+    public class UnifiedConfig
+    {
+        public BotSettings Bot { get; set; } = new();
+        public Dictionary<string, int> FirestoneResearch { get; set; } = new();
+        public Dictionary<string, int> OracleBlessings { get; set; } = new();
+        public Dictionary<string, int> MissionPriorities { get; set; } = new();
+        public Dictionary<string, string> ResearchNames { get; set; } = new();
+        public Dictionary<string, string> BlessingNames { get; set; } = new();
+    }
+
+    public class BotSettings
+    {
+        public bool Enabled { get; set; } = true;
+        public bool DebugEnabled { get; set; } = true;
+        public bool GuildExpeditions { get; set; } = true;
+        public bool MapMissions { get; set; } = true;
+        public bool DailyTasks { get; set; } = true;
+        public bool MeteoriteResearch { get; set; } = true;
+        public bool FirestoneResearch { get; set; } = true;
+        public bool MysteryBox { get; set; } = true;
+        public bool CheckIn { get; set; } = true;
+        public bool OracleRituals { get; set; } = true;
+        public bool OraclesGift { get; set; } = true;
+        public bool OracleBlessings { get; set; } = true;
+        public bool Upgrades { get; set; } = true;
+        public bool Chests { get; set; } = true;
+        public bool Tanks { get; set; } = true;
+        public bool Alchemy { get; set; } = true;
+        public bool Engineer { get; set; } = true;
+        public bool CloseWindows { get; set; } = true;
+    }
+
+    public static class ConfigManager
+    {
+        private static UnifiedConfig _config;
+        private static readonly string _configPath = "Mods/unified_config.json";
+
+        public static UnifiedConfig Config => _config ??= LoadConfig();
+
+        private static UnifiedConfig LoadConfig()
+        {
+            try
+            {
+                if (File.Exists(_configPath))
+                {
+                    var json = File.ReadAllText(_configPath);
+                    return JsonSerializer.Deserialize<UnifiedConfig>(json);
+                }
+            }
+            catch (System.Exception ex)
+            {
+                MelonLogger.Error($"Ошибка загрузки конфига: {ex.Message}");
+            }
+
+            var defaultConfig = CreateDefaultConfig();
+            SaveConfig(defaultConfig);
+            return defaultConfig;
+        }
+
+        public static void SaveConfig(UnifiedConfig config = null)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(config ?? _config, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(_configPath, json);
+            }
+            catch (System.Exception ex)
+            {
+                MelonLogger.Error($"Ошибка сохранения конфига: {ex.Message}");
+            }
+        }
+
+        private static UnifiedConfig CreateDefaultConfig()
+        {
+            return new UnifiedConfig
+            {
+                FirestoneResearch = new Dictionary<string, int>
+                {
+                    { "1/12", 1 }, { "2/2", 1 }, { "1/6", 2 }, { "2/5", 2 }, { "3/14", 2 },
+                    { "2/1", 3 }, { "3/15", 4 }, { "1/0", 7 }, { "2/7", 8 }, { "3/10", 9 },
+                    { "3/6", 10 }, { "2/13", 11 }, { "1/3", 12 }, { "2/14", 12 }, { "1/4", 13 },
+                    { "2/15", 13 }, { "2/9", 14 }, { "3/0", 15 }, { "1/5", 15 }, { "3/2", 16 },
+                    { "3/3", 17 }, { "3/4", 18 }, { "1/7", 18 }, { "1/8", 19 }, { "3/5", 19 },
+                    { "1/9", 20 }, { "3/7", 20 }, { "1/10", 21 }, { "3/8", 21 }, { "1/11", 22 },
+                    { "3/9", 22 }, { "3/11", 23 }, { "1/13", 24 }, { "1/14", 25 }, { "1/15", 26 },
+                    { "2/0", 27 }, { "2/3", 29 }, { "2/4", 30 }, { "2/6", 31 }, { "2/8", 32 },
+                    { "2/10", 33 }, { "3/1", 34 }, { "1/1", 997 }, { "1/2", 997 }, { "2/11", 997 },
+                    { "2/12", 997 }, { "3/12", 997 }, { "3/13", 997 }
+                },
+                OracleBlessings = new Dictionary<string, int>
+                {
+                    { "11", 1 }, { "0", 2 }, { "6", 3 }, { "8", 4 },
+                    { "3", 5 }, { "2", 6 }, { "7", 7 }, { "1", 8 }
+                },
+                MissionPriorities = new Dictionary<string, int>
+                {
+                    { "scout", 1 }, { "adventure", 2 }, { "war", 3 }
+                }
+            };
         }
     }
 }

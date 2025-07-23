@@ -1,7 +1,7 @@
 using MelonLoader;
 using UnityEngine;
 
-namespace FirestoneBot
+namespace Firestone_bot
 {
     public static class MeteoriteResearch
     {
@@ -43,9 +43,20 @@ namespace FirestoneBot
                     if (Time.time >= _waitTimer)
                     {
                         var buyButton = GameUtils.FindButton("researchButton");
+                        if (buyButton == null)
+                        {
+                            buyButton = GameUtils.FindByPath("menusRoot/menuCanvasParent/SafeArea/menuCanvas/popups/ResearchPreview/bg/researchButton");
+                        }
+                        
+                        DebugManager.DebugLog($"Кнопка покупки найдена: {buyButton != null}");
+                        
                         if (GameUtils.ClickButton(buyButton))
                         {
-                            MelonLogger.Msg("Исследование куплено");
+                            MelonLogger.Msg($"Исследование {_currentResearchIndex} куплено");
+                        }
+                        else
+                        {
+                            DebugManager.DebugLog($"Не удалось купить исследование {_currentResearchIndex}");
                         }
                         
                         GameUtils.CloseWindow("popups/ResearchPreview");
@@ -64,16 +75,27 @@ namespace FirestoneBot
         
         private static bool ProcessNextResearch()
         {
-            var researchButton = GameUtils.FindByPath($"menusRoot/menuCanvasParent/SafeArea/menuCanvas/menus/Library/submenus/meteoriteResearch/tree/research ({_currentResearchIndex})");
+            // Ищем исследования в разных деревьях
+            GameObject researchButton = null;
+            for (int tree = 1; tree <= 10; tree++)
+            {
+                researchButton = GameUtils.FindByPath($"menusRoot/menuCanvasParent/SafeArea/menuCanvas/menus/Library/submenus/meteoriteResearch/submenus/tree{tree}/research{_currentResearchIndex}");
+                if (researchButton != null)
+                {
+                    DebugManager.DebugLog($"Найдено исследование {_currentResearchIndex} в дереве {tree}");
+                    break;
+                }
+            }
             
             if (researchButton != null && GameUtils.ClickButton(researchButton))
             {
                 MelonLogger.Msg($"Открыто исследование {_currentResearchIndex}");
-                _waitTimer = Time.time + 0.1f;
+                _waitTimer = Time.time + 0.5f;
                 _state = State.WaitForResearchWindow;
                 return true;
             }
             
+            DebugManager.DebugLog($"Исследование {_currentResearchIndex} не найдено или недоступно");
             return false;
         }
 

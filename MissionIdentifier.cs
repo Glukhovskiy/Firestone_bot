@@ -3,7 +3,7 @@ using UnityEngine;
 using System.IO;
 using System;
 
-namespace FirestoneBot
+namespace Firestone_bot
 {
     public static class MissionIdentifier
     {
