@@ -13,10 +13,11 @@ namespace Firestone_bot
         private static State _state = State.OpenMap;
         private static float _waitTimer = 0f;
         private static GameObject _currentMission = null;
+        private static string _currentMissionType = "Unknown";
 
         private static int _activeMissionIndex = 0;
         private static System.Collections.Generic.List<string> _processedMissions = new System.Collections.Generic.List<string>();
-        private static System.Collections.Generic.Dictionary<string, string> _missionTypes = new System.Collections.Generic.Dictionary<string, string>();
+
         private static System.Collections.Generic.Dictionary<string, int> _missionPriorities = new System.Collections.Generic.Dictionary<string, int>();
         private static System.Collections.Generic.List<(GameObject mission, int priority)> _sortedMissions = new System.Collections.Generic.List<(GameObject, int)>();
         private static int _currentSortedIndex = 0;
@@ -64,7 +65,6 @@ namespace Firestone_bot
                         {
                             if (_sortedMissions.Count == 0)
                             {
-                                LoadMissionTypes();
                                 LoadMissionPriorities();
                                 _sortedMissions = FindAndSortMissions();
                                 _currentSortedIndex = 0;
@@ -78,11 +78,11 @@ namespace Firestone_bot
                             }
                             
                             _currentMission = _sortedMissions[_currentSortedIndex].mission;
+                            var parentMission = _currentMission.transform.parent?.gameObject;
+                            _currentMissionType = parentMission != null ? DetectMissionType(parentMission) : "Unknown";
                             _waitTimer = Time.time + 0.1f;
                             var missionName = GetMissionName(_currentMission);
-                            var missionKey = ExtractMissionKey(GetObjectPath(_currentMission));
-                            var missionType = _missionTypes.ContainsKey(missionKey) ? _missionTypes[missionKey] : "Unknown";
-                            DebugManager.DebugLog($"Выбрана миссия с приоритетом {_sortedMissions[_currentSortedIndex].priority}: {missionName} ({missionType})");
+                            DebugManager.DebugLog($"Выбрана миссия с приоритетом {_sortedMissions[_currentSortedIndex].priority}: {missionName} ({_currentMissionType})");
                         }
                         else if (Time.time >= _waitTimer)
                         {
@@ -100,6 +100,8 @@ namespace Firestone_bot
                             _currentSortedIndex++;
                             _state = State.FindNewMissions;
                             _currentMission = null;
+                            _currentMissionType = "Unknown";
+                            _currentMissionType = "Unknown";
                         }
                         break;
                         
@@ -149,6 +151,7 @@ namespace Firestone_bot
         {
             var missions = new System.Collections.Generic.List<(GameObject mission, int priority)>();
             var allObjects = UnityEngine.Object.FindObjectsOfType<GameObject>();
+
             
             foreach (var obj in allObjects)
             {
@@ -158,12 +161,15 @@ namespace Firestone_bot
                     
                     if (path.Contains("menusRoot/mapRoot/mapElements/missions") && !_processedMissions.Contains(path))
                     {
-                        var missionKey = ExtractMissionKey(path);
-                        var missionType = _missionTypes.ContainsKey(missionKey) ? _missionTypes[missionKey] : "Unknown";
+
+                        
+                        var parentMission = obj.transform.parent?.gameObject;
+                        var missionType = parentMission != null ? DetectMissionType(parentMission) : "Unknown";
                         var priority = _missionPriorities.ContainsKey(missionType.ToLower()) ? _missionPriorities[missionType.ToLower()] : 998;
                         
                         missions.Add((obj, priority));
                         _processedMissions.Add(path);
+                        var missionKey = ExtractMissionKey(path);
                         DebugManager.DebugLog($"[MapMissions] Миссия: {missionKey}, тип: {missionType}, приоритет: {priority}");
                     }
                 }
@@ -173,31 +179,7 @@ namespace Firestone_bot
             return missions;
         }
         
-        private static void LoadMissionTypes()
-        {
-            _missionTypes.Clear();
-            try
-            {
-                var logPath = System.IO.Path.Combine(UnityEngine.Application.dataPath, "..", "Mods", "mission_types.txt");
-                if (System.IO.File.Exists(logPath))
-                {
-                    var lines = System.IO.File.ReadAllLines(logPath);
-                    foreach (var line in lines)
-                    {
-                        var parts = line.Split('=');
-                        if (parts.Length == 2)
-                        {
-                            _missionTypes[parts[0]] = parts[1];
-                        }
-                    }
-                    DebugManager.DebugLog($"[MapMissions] Загружено {_missionTypes.Count} типов миссий");
-                }
-            }
-            catch (System.Exception ex)
-            {
-                MelonLogger.Error($"Ошибка загрузки mission_types.txt: {ex.Message}");
-            }
-        }
+
         
         private static void LoadMissionPriorities()
         {
@@ -230,8 +212,6 @@ namespace Firestone_bot
         
         private static void HandleMissionPreviewWindow()
         {
-            MissionIdentifier.IdentifyMission(_currentMission);
-            
             var startButton = GameUtils.FindByPath("menusRoot/menuCanvasParent/SafeArea/menuCanvas/popups/PreviewMission/bg/managementBg/startMissionButton");
             
             if (startButton != null)
@@ -242,9 +222,7 @@ namespace Firestone_bot
                     if (GameUtils.ClickButton(startButton))
                     {
                         var missionName = GetMissionName(_currentMission);
-                        var missionKey = ExtractMissionKey(GetObjectPath(_currentMission));
-                        var missionType = _missionTypes.ContainsKey(missionKey) ? _missionTypes[missionKey] : "Unknown";
-                        MelonLogger.Msg($"Миссия запущена: {missionName} ({missionType})");
+                        MelonLogger.Msg($"Миссия запущена: {missionName} ({_currentMissionType})");
                         return;
                     }
                 }
@@ -322,10 +300,60 @@ namespace Firestone_bot
             _state = State.OpenMap;
             _waitTimer = 0f;
             _currentMission = null;
+            _currentMissionType = "Unknown";
             _activeMissionIndex = 0;
             _processedMissions.Clear();
             _sortedMissions.Clear();
             _currentSortedIndex = 0;
+        }
+        
+        private static string DetectMissionType(GameObject missionParent)
+        {
+            try
+            {
+                var missionIcon = missionParent.transform.Find("missionBg/missionIcon");
+                var spriteRenderer = missionIcon?.GetComponent<SpriteRenderer>();
+                
+                if (spriteRenderer?.sprite != null)
+                {
+                    var spriteName = spriteRenderer.sprite.name;
+                    DebugManager.DebugLog($"[DetectMissionType] Имя спрайта: '{spriteName}'");
+                    
+                    // Убираем (Clone) если есть
+                    if (spriteName.EndsWith("(Clone)"))
+                    {
+                        spriteName = spriteName.Substring(0, spriteName.Length - "(Clone)".Length);
+                    }
+                    
+                    // Извлекаем тип из имени спрайта (mission[Type]Icon)
+                    if (spriteName.StartsWith("mission") && spriteName.EndsWith("Icon"))
+                    {
+                        var typeStart = "mission".Length;
+                        var typeEnd = spriteName.LastIndexOf("Icon");
+                        
+                        if (typeEnd > typeStart)
+                        {
+                            var extractedType = spriteName.Substring(typeStart, typeEnd - typeStart).ToLower();
+                            DebugManager.DebugLog($"[DetectMissionType] Извлеченный тип: '{extractedType}'");
+                            return extractedType;
+                        }
+                    }
+                    else
+                    {
+                        DebugManager.DebugLog($"[DetectMissionType] Спрайт не соответствует формату mission[Type]Icon");
+                    }
+                }
+                else
+                {
+                    DebugManager.DebugLog($"[DetectMissionType] SpriteRenderer или sprite не найден");
+                }
+                
+                return "Unknown";
+            }
+            catch
+            {
+                return "Unknown";
+            }
         }
     }
 }

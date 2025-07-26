@@ -319,7 +319,8 @@ namespace Firestone_bot
                 },
                 MissionPriorities = new Dictionary<string, int>
                 {
-                    { "scout", 1 }, { "adventure", 2 }, { "war", 3 }
+                    { "mysterybox", 0 }, { "scout", 1 }, { "adventure", 2 }, 
+                    { "war", 3 }, { "dragon", 4 }, { "monster", 5 }, { "naval", 6 }
                 }
             };
         }

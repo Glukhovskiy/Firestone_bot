@@ -157,9 +157,12 @@
   },
   "MissionPriorities": {
     "_comment": "Приоритеты типов миссий",
+    "mysterybox": 0,
     "scout": 1,
     "adventure": 2,
     "war": 3,
-    "dragon": 4
+    "dragon": 4,
+    "monster": 5,
+    "naval": 6
   }
 }
