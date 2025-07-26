@@ -19,6 +19,7 @@
     "Tanks": true,
     "Alchemy": true,
     "Engineer": true,
+    "Sales": true,
     "CloseWindows": true
   },
   "FirestoneResearch": {
@@ -164,5 +165,18 @@
     "dragon": 4,
     "monster": 5,
     "naval": 6
+  },
+  "SalesItems": {
+    "_comment": "Предметы для продажи (true = продавать, false = оставить)",
+    "MidasTouch": true,
+    "PouchOfGold": false,
+    "BucketOfGold": false,
+    "CrateOfGold": false,
+    "PileOfGold": false,
+    "DrumsOfWar": true,
+    "DragonArmor": true,
+    "GuardiansRune": true,
+    "TotemOfAgony": true,
+    "TotemOfAnnihilation": true
   }
 }

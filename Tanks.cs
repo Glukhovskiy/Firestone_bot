@@ -18,8 +18,8 @@ namespace Firestone_bot
                     var warfrontButton = GameUtils.FindByPath("battleRoot/battleMain/battleCanvas/SafeArea/leftSideUI/notifications/Viewport/grid/WarfrontCampaign");
                     if (GameUtils.ClickButton(warfrontButton))
                     {
-                        MelonLogger.Msg("Нажата кнопка WarfrontCampaign");
-                        _waitTimer = Time.time + 0.2f;
+                        DebugManager.DebugLog("Нажата кнопка WarfrontCampaign");
+                        _waitTimer = Time.time + 0.5f;
                         _state = State.ProcessClaim;
                     }
                     else
@@ -53,7 +53,7 @@ namespace Firestone_bot
                         DebugManager.DebugLog($"dailyMissionsButton найдена: {dailyMissionsButton != null}");
                         if (GameUtils.ClickButton(dailyMissionsButton))
                         {
-                            MelonLogger.Msg("Открыты ежедневные миссии");
+                            DebugManager.DebugLog("Открыты ежедневные миссии");
                             _waitTimer = Time.time + 0.2f;
                             _state = State.WaitForDailyWindow;
                         }
@@ -74,7 +74,7 @@ namespace Firestone_bot
                     var openButton = GameUtils.FindByPath("menusRoot/menuCanvasParent/SafeArea/menuCanvas/popups/WFDailyMissions/bg/dungeonMissions/openButton");
                     if (GameUtils.ClickButton(openButton))
                     {
-                        MelonLogger.Msg("Открыты миссии подземелий");
+                        DebugManager.DebugLog("Открыты миссии подземелий");
                         _waitTimer = Time.time + 0.2f;
                         _state = State.WaitForDungeonWindow;
                     }
@@ -113,7 +113,7 @@ namespace Firestone_bot
                 case State.CloseDungeonMissions:
                     var closeDungeonBtn = GameUtils.FindByPath("menusRoot/menuCanvasParent/SafeArea/menuCanvas/popups/WFDungeonMissions/bg/closeButton");
                     GameUtils.ClickButton(closeDungeonBtn);
-                    MelonLogger.Msg("Подземелья закрыты");
+                    DebugManager.DebugLog("Подземелья закрыты");
                     _waitTimer = Time.time + 0.2f;
                     _currentMissionIndex = 0;
                     _state = State.WaitAfterDungeonClose;
@@ -128,7 +128,7 @@ namespace Firestone_bot
                     var liberationOpenBtn = GameUtils.FindByPath("menusRoot/menuCanvasParent/SafeArea/menuCanvas/popups/WFDailyMissions/bg/liberationMissions/openButton");
                     if (GameUtils.ClickButton(liberationOpenBtn))
                     {
-                        MelonLogger.Msg("Открыты миссии освобождения");
+                        DebugManager.DebugLog("Открыты миссии освобождения");
                         _waitTimer = Time.time + 0.2f;
                         _state = State.WaitForLiberationWindow;
                     }
@@ -180,12 +180,12 @@ namespace Firestone_bot
                 }
             }
             
-            MelonLogger.Msg($"[DEBUG] Найдено активных кнопок боев в подземельях: {fightButtons.Count}");
+            DebugManager.DebugLog($"[DEBUG] Найдено активных кнопок боев в подземельях: {fightButtons.Count}");
             
             if (fightButtons.Count > 0)
             {
                 var fightButton = fightButtons[0];
-                MelonLogger.Msg($"[DEBUG] Нажимаем кнопку боя: {GetObjectPath(fightButton.gameObject)}");
+                DebugManager.DebugLog($"[DEBUG] Нажимаем кнопку боя: {GetObjectPath(fightButton.gameObject)}");
                 
                 if (GameUtils.ClickButton(fightButton.gameObject))
                 {
@@ -195,7 +195,7 @@ namespace Firestone_bot
                 }
             }
             
-            MelonLogger.Msg("[DEBUG] Активных боев в подземельях не найдено");
+            DebugManager.DebugLog("[DEBUG] Активных боев в подземельях не найдено");
             return false;
         }
         
@@ -220,7 +220,7 @@ namespace Firestone_bot
             if (fightButtons.Count > 0)
             {
                 var fightButton = fightButtons[0];
-                MelonLogger.Msg($"[DEBUG] Нажимаем кнопку боя: {GetObjectPath(fightButton.gameObject)}");
+                DebugManager.DebugLog($"[DEBUG] Нажимаем кнопку боя: {GetObjectPath(fightButton.gameObject)}");
                 
                 if (GameUtils.ClickButton(fightButton.gameObject))
                 {
@@ -230,7 +230,7 @@ namespace Firestone_bot
                 }
             }
             
-            MelonLogger.Msg("[DEBUG] Активных боев освобождения не найдено");
+            DebugManager.DebugLog("[DEBUG] Активных боев освобождения не найдено");
             return false;
         }
         

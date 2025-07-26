@@ -26,7 +26,7 @@ namespace Firestone_bot
                         button.onClick.Invoke();
                         _questsClicked = true;
                         _questsClickTime = Time.time;
-                        MelonLogger.Msg("Нажата кнопка Quests");
+                        DebugManager.DebugLog("Нажата кнопка Quests");
                     }
                 }
                 else
@@ -58,7 +58,7 @@ namespace Firestone_bot
                         if (button != null && button.interactable)
                         {
                             button.onClick.Invoke();
-                            MelonLogger.Msg("Нажата кнопка ежедневных квестов");
+                            DebugManager.DebugLog("Нажата кнопка ежедневных квестов");
                         }
                     }
                     
@@ -90,7 +90,7 @@ namespace Firestone_bot
                         if (button != null && button.interactable)
                         {
                             button.onClick.Invoke();
-                            MelonLogger.Msg("Нажата кнопка еженедельных квестов");
+                            DebugManager.DebugLog("Нажата кнопка еженедельных квестов");
                         }
                     }
                     else
@@ -257,7 +257,7 @@ namespace Firestone_bot
                             if (button != null && button.interactable)
                             {
                                 button.onClick.Invoke();
-                                MelonLogger.Msg("Закрыто окно квестов");
+                                DebugManager.DebugLog("Закрыто окно квестов");
                                 break;
                             }
                         }

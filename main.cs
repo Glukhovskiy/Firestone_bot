@@ -33,6 +33,7 @@ namespace Firestone_bot
             { BotFunction.Tanks, (() => ConfigManager.Config.Bot.Tanks, Tanks.ProcessTanks) },
             { BotFunction.Alchemy, (() => ConfigManager.Config.Bot.Alchemy, Alchemy.ProcessAlchemy) },
             { BotFunction.Engineer, (() => ConfigManager.Config.Bot.Engineer, Engineer.ProcessEngineer) },
+            { BotFunction.Sales, (() => ConfigManager.Config.Bot.Sales, Sales.ProcessSales) },
             { BotFunction.CloseWindows, (() => ConfigManager.Config.Bot.CloseWindows, CloseWindows.CloseAllWindows) }
         };
 
@@ -43,7 +44,7 @@ namespace Firestone_bot
             var botGO = new GameObject("BotController");
             _botController = botGO.AddComponent<BotController>();
             LogModulesStatus();
-            MelonLogger.Msg("Бот инициализирован!\nF5 - Включить/Выключить бота\nF7 - Включить/Выключить модуль Chests\nF8 - Включить/Выключить модуль Debug");
+            MelonLogger.Msg("Бот инициализирован!\nF4 - Перезагрузить конфиг\nF5 - Включить/Выключить бота\nF7 - Включить/Выключить модуль Chests\nF8 - Включить/Выключить модуль Debug");
         }
 
         public override void OnUpdate()
@@ -54,6 +55,13 @@ namespace Firestone_bot
                 {
                     ConfigManager.Config.Bot.Enabled = !ConfigManager.Config.Bot.Enabled;
                     MelonLogger.Msg(ConfigManager.Config.Bot.Enabled ? "Бот включен" : "Бот выключен");
+                }
+                
+                if (Input.GetKeyDown(KeyCode.F4))
+                {
+                    ConfigManager.ReloadConfig();
+                    ResetAllModules();
+                    MelonLogger.Msg("Конфигурация перезагружена, состояния модулей сброшены");
                 }
                 
                 if (Input.GetKeyDown(KeyCode.F7))
@@ -83,10 +91,15 @@ namespace Firestone_bot
                 MelonLogger.Error($"Ошибка в OnUpdate: {ex.Message}");
             }
         }
-
-
-
-
+        
+        private static void ResetAllModules()
+        {
+            // Сбрасываем текущую функцию к начальной
+            _currentFunction = BotFunction.GuildExpeditions;
+            
+            // Здесь можно добавить сброс состояний конкретных модулей
+            // Например: MapMissions.ResetState(), Sales.ResetState() и т.д.
+        }
 
         public static void NextFunction()
         {
@@ -106,7 +119,8 @@ namespace Firestone_bot
                 BotFunction.Chests => BotFunction.Tanks,
                 BotFunction.Tanks => BotFunction.Alchemy,
                 BotFunction.Alchemy => BotFunction.Engineer,
-                BotFunction.Engineer => BotFunction.CloseWindows,
+                BotFunction.Engineer => BotFunction.Sales,
+                BotFunction.Sales => BotFunction.CloseWindows,
                 BotFunction.CloseWindows => BotFunction.GuildExpeditions,
                 _ => BotFunction.GuildExpeditions
             };
@@ -209,6 +223,7 @@ namespace Firestone_bot
         Tanks,
         Alchemy,
         Engineer,
+        Sales,
         CloseWindows
     }
     
@@ -229,6 +244,7 @@ namespace Firestone_bot
         public Dictionary<string, int> FirestoneResearch { get; set; } = new();
         public Dictionary<string, int> OracleBlessings { get; set; } = new();
         public Dictionary<string, int> MissionPriorities { get; set; } = new();
+        public Dictionary<string, bool> SalesItems { get; set; } = new();
         public Dictionary<string, string> ResearchNames { get; set; } = new();
         public Dictionary<string, string> BlessingNames { get; set; } = new();
     }
@@ -252,6 +268,7 @@ namespace Firestone_bot
         public bool Tanks { get; set; } = true;
         public bool Alchemy { get; set; } = true;
         public bool Engineer { get; set; } = true;
+        public bool Sales { get; set; } = true;
         public bool CloseWindows { get; set; } = true;
     }
 
@@ -294,6 +311,12 @@ namespace Firestone_bot
                 MelonLogger.Error($"Ошибка сохранения конфига: {ex.Message}");
             }
         }
+        
+        public static void ReloadConfig()
+        {
+            _config = null; // Сбрасываем кеш
+            _config = LoadConfig(); // Перезагружаем
+        }
 
         private static UnifiedConfig CreateDefaultConfig()
         {
@@ -321,6 +344,13 @@ namespace Firestone_bot
                 {
                     { "mysterybox", 0 }, { "scout", 1 }, { "adventure", 2 }, 
                     { "war", 3 }, { "dragon", 4 }, { "monster", 5 }, { "naval", 6 }
+                },
+                SalesItems = new Dictionary<string, bool>
+                {
+                    { "MidasTouch", true }, { "PouchOfGold", false }, { "BucketOfGold", false },
+                    { "CrateOfGold", false }, { "PileOfGold", false }, { "DrumsOfWar", true },
+                    { "DragonArmor", true }, { "GuardiansRune", true }, { "TotemOfAgony", true },
+                    { "TotemOfAnnihilation", true }
                 }
             };
         }
