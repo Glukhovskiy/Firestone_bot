@@ -103,7 +103,7 @@ namespace Firestone_bot
                         MelonLogger.Msg("Бой завершен, окно закрыто");
                         _state = _currentMissionIndex < 100 ? State.ProcessDungeonFights : State.ProcessLiberationFights;
                     }
-                    else if (Time.time - _waitTimer > 10f)
+                    else if (Time.time - _waitTimer > 600f)
                     {
                         MelonLogger.Msg("Таймаут ожидания результата боя, продолжаем");
                         _state = State.CloseDungeonMissions;
