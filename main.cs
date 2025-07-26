@@ -268,7 +268,7 @@ namespace Firestone_bot
         public bool Tanks { get; set; } = true;
         public bool Alchemy { get; set; } = true;
         public bool Engineer { get; set; } = true;
-        public bool Sales { get; set; } = true;
+        public bool Sales { get; set; } = false;
         public bool CloseWindows { get; set; } = true;
     }
 

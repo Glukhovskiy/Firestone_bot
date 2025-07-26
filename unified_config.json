@@ -19,7 +19,7 @@
     "Tanks": true,
     "Alchemy": true,
     "Engineer": true,
-    "Sales": true,
+    "Sales": false,
     "CloseWindows": true
   },
   "FirestoneResearch": {
