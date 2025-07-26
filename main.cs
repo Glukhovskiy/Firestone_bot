@@ -6,7 +6,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Text.Json;
 
-[assembly: MelonInfo(typeof(Firestone_bot.BotMain), "Firestone Bot", "0.13.2", "GentleDevil")]
+[assembly: MelonInfo(typeof(Firestone_bot.BotMain), "Firestone Bot", "0.14.0", "GentleDevil")]
 [assembly: MelonGame("HolydayStudios", "Firestone")]
 
 namespace Firestone_bot
