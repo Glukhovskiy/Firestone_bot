@@ -1,6 +1,5 @@
 using MelonLoader;
 using UnityEngine;
-using System.IO;
 using System.Linq;
 
 namespace Firestone_bot
@@ -13,58 +12,24 @@ namespace Firestone_bot
         private static GameObject[] _researchButtons = null;
         private static int _currentResearchIndex = 0;
 
-        
-        private static readonly System.Collections.Generic.Dictionary<string, string> _researchNames = new()
+        private static string ConvertSpriteNameToDisplayName(string spriteName)
         {
-            { "1/0", "Attribute damage" },
-            { "1/1", "Attribute health" },
-            { "1/2", "Attribute armor" },
-            { "1/3", "Fist fight" },
-            { "1/4", "Guardian power" },
-            { "1/5", "Projectiles" },
-            { "1/6", "Raining gold" },
-            { "1/7", "Critical loot Bonus" },
-            { "1/8", "Critical loot Chance" },
-            { "1/9", "Weaklings" },
-            { "1/10", "Expose Weakness" },
-            { "1/11", "Medal of honor" },
-            { "1/12", "Prestigious" },
-            { "1/13", "Trainer Skills" },
-            { "1/14", "Skip wave" },
-            { "1/15", "Expeditioner" },
-            { "2/0", "Skip stage" },
-            { "2/1", "all main attributes" },
-            { "2/2", "Prestigious" },
-            { "2/3", "Powerless enemy" },
-            { "2/4", "Powerless boss" },
-            { "2/5", "Raining gold" },
-            { "2/6", "Meteorite Hunter" },
-            { "2/7", "Attribute damage" },
-            { "2/8", "Weaklings" },
-            { "2/9", "Guardian power" },
-            { "2/10", "Expose Weakness" },
-            { "2/11", "Attribute health" },
-            { "2/12", "Attribute armor" },
-            { "2/13", "Rage heroes" },
-            { "2/14", "Mana heroes" },
-            { "2/15", "Energy heroes" },
-            { "3/0", "Guardian power" },
-            { "3/1", "Firestone effect" },
-            { "3/2", "Rage heroes" },
-            { "3/3", "Mana heroes" },
-            { "3/4", "Energy heroes" },
-            { "3/5", "Fist fight" },
-            { "3/6", "Precision" },
-            { "3/7", "Magic spells" },
-            { "3/8", "Tank specialization" },
-            { "3/9", "Healer specialization" },
-            { "3/10", "Damage specialization" },
-            { "3/11", "Attribute damage" },
-            { "3/12", "Attribute health" },
-            { "3/13", "Attribute armor" },
-            { "3/14", "Raining gols" },
-            { "3/15", "All main attributes" }
-        };
+            // Убираем x128 в конце
+            if (spriteName.EndsWith("x128"))
+                spriteName = spriteName.Substring(0, spriteName.Length - 4);
+            
+            // Разделяем camelCase на слова с заглавными буквами
+            var result = System.Text.RegularExpressions.Regex.Replace(spriteName, "([a-z])([A-Z])", "$1 $2");
+            
+            // Делаем первую букву заглавной
+            if (result.Length > 0)
+                result = char.ToUpper(result[0]) + result.Substring(1);
+            
+            return result;
+        }
+
+        
+
         
         public static void ProcessFirestoneResearch()
         {
@@ -101,13 +66,12 @@ namespace Firestone_bot
                     if (_researchButtons != null && _currentResearchIndex < _researchButtons.Length)
                     {
                         var researchBtn = _researchButtons[_currentResearchIndex];
+                        string displayName = GetResearchDisplayNameFromUI(researchBtn);
                         string key = ExtractResearchKey(researchBtn.name, GetPath(researchBtn.transform));
-                        int priority = GetResearchPriority(researchBtn.name, GetPath(researchBtn.transform));
                         
                         if (GameUtils.ClickButton(researchBtn))
                         {
-                            string displayName = GetResearchDisplayName(researchBtn.name, GetPath(researchBtn.transform));
-                            DebugManager.DebugLog($"Открыто исследование: {key} - {displayName} (приоритет: {priority})");
+                            DebugManager.DebugLog($"Открыто исследование: {key} - {displayName}");
                             _waitTimer = Time.time + 0.1f;
                             _state = State.WaitForResearchWindow;
                         }
@@ -133,7 +97,7 @@ namespace Firestone_bot
                     if (startBtn != null)
                     {
                         string key = ExtractResearchKey(_researchButtons[_currentResearchIndex].name, GetPath(_researchButtons[_currentResearchIndex].transform));
-                        string displayName = GetResearchDisplayName(_researchButtons[_currentResearchIndex].name, GetPath(_researchButtons[_currentResearchIndex].transform));
+                        string displayName = GetResearchDisplayNameFromUI(_researchButtons[_currentResearchIndex]);
                         MelonLogger.Msg($"Запущено исследование: {key} - {displayName}");
                         GameUtils.ClickButton(startBtn);
                         _state = State.Complete;
@@ -211,12 +175,12 @@ namespace Firestone_bot
                     
                     if (nameMatch && pathMatch)
                     {
-                        int priority = GetResearchPriority(button.name, path);
+                        string displayName = GetResearchDisplayNameFromUI(button.gameObject);
+                        int priority = GetResearchPriorityByName(displayName);
                         string key = ExtractResearchKey(button.name, path);
                         if (priority < 999)
                         {
                             buttons.Add((button.gameObject, priority, key));
-                            string displayName = GetResearchDisplayName(button.name, path);
                             DebugManager.DebugLog($"Найдено исследование: {key} - {displayName} (приоритет: {priority})");
                         }
                     }
@@ -257,18 +221,51 @@ namespace Firestone_bot
         
 
         
-        private static int GetResearchPriority(string buttonName, string path)
+        private static int GetResearchPriorityByName(string researchName)
         {
-            var key = ExtractResearchKey(buttonName, path);
-            return ConfigManager.Config.FirestoneResearch.TryGetValue(key, out int priority) ? priority : 998;
+            return ConfigManager.Config.FirestoneResearch.TryGetValue(researchName, out int priority) ? priority : 998;
         }
         
-        private static string GetResearchDisplayName(string buttonName, string path)
+        private static string GetResearchDisplayNameFromUI(GameObject researchButton)
         {
-            var key = ExtractResearchKey(buttonName, path);
-            if (_researchNames.TryGetValue(key, out string displayName))
-                return $"tree{key.Split('/')[0]}/firestoneResearch{key.Split('/')[1]} - {displayName}";
-            return buttonName;
+            try
+            {
+                // Ищем среди всех дочерних объектов
+                var children = researchButton.GetComponentsInChildren<Transform>();
+                
+                // Ищем researchName
+                foreach (var child in children)
+                {
+                    if (child.name == "researchName")
+                    {
+                        var textComponent = child.GetComponent<UnityEngine.UI.Text>();
+                        if (textComponent != null && !string.IsNullOrEmpty(textComponent.text))
+                        {
+                            return textComponent.text.Trim();
+                        }
+                    }
+                }
+                
+                // Ищем researchIcon
+                foreach (var child in children)
+                {
+                    if (child.name == "researchIcon")
+                    {
+                        var imageComponent = child.GetComponent<UnityEngine.UI.Image>();
+                        if (imageComponent?.sprite != null)
+                        {
+                            return ConvertSpriteNameToDisplayName(imageComponent.sprite.name);
+                        }
+                    }
+                }
+                
+                return researchButton.name;
+            }
+            catch (System.Exception ex)
+            {
+                DebugManager.DebugLog($"Ошибка получения названия исследования: {ex.Message}");
+                return researchButton.name;
+            }
         }
         
         private static string ExtractResearchKey(string buttonName, string path)

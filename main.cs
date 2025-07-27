@@ -324,16 +324,16 @@ namespace Firestone_bot
             {
                 FirestoneResearch = new Dictionary<string, int>
                 {
-                    { "1/12", 1 }, { "2/2", 1 }, { "1/6", 2 }, { "2/5", 2 }, { "3/14", 2 },
-                    { "2/1", 3 }, { "3/15", 4 }, { "1/0", 7 }, { "2/7", 8 }, { "3/10", 9 },
-                    { "3/6", 10 }, { "2/13", 11 }, { "1/3", 12 }, { "2/14", 12 }, { "1/4", 13 },
-                    { "2/15", 13 }, { "2/9", 14 }, { "3/0", 15 }, { "1/5", 15 }, { "3/2", 16 },
-                    { "3/3", 17 }, { "3/4", 18 }, { "1/7", 18 }, { "1/8", 19 }, { "3/5", 19 },
-                    { "1/9", 20 }, { "3/7", 20 }, { "1/10", 21 }, { "3/8", 21 }, { "1/11", 22 },
-                    { "3/9", 22 }, { "3/11", 23 }, { "1/13", 24 }, { "1/14", 25 }, { "1/15", 26 },
-                    { "2/0", 27 }, { "2/3", 29 }, { "2/4", 30 }, { "2/6", 31 }, { "2/8", 32 },
-                    { "2/10", 33 }, { "3/1", 34 }, { "1/1", 997 }, { "1/2", 997 }, { "2/11", 997 },
-                    { "2/12", 997 }, { "3/12", 997 }, { "3/13", 997 }
+                    { "Prestigious", 1 }, { "Raining Gold", 2 }, { "All Main Attributes", 3 },
+                    { "Attribute Damage", 7 }, { "Damage Specialization", 9 }, { "Precision", 10 },
+                    { "Rage Heroes", 11 }, { "Fist Fight", 12 }, { "Mana Heroes", 12 },
+                    { "Guardian Power", 13 }, { "Energy Heroes", 13 }, { "Projectiles", 15 },
+                    { "Critical Loot Bonus", 18 }, { "Critical Loot Chance", 19 }, { "Magic Spells", 20 },
+                    { "Weaklings", 20 }, { "Expose Weakness", 21 }, { "Tank Specialization", 21 },
+                    { "Medal Of Honor", 22 }, { "Healer Specialization", 22 }, { "Trainer Skills", 24 },
+                    { "Skip Wave", 25 }, { "Expeditioner", 26 }, { "Skip Stage", 27 },
+                    { "Powerless Enemy", 29 }, { "Powerless Boss", 30 }, { "Meteorite Hunter", 31 },
+                    { "Firestone Effect", 34 }, { "Attribute Health", 997 }, { "Attribute Armor", 997 }
                 },
                 OracleBlessings = new Dictionary<string, int>
                 {
