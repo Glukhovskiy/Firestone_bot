@@ -71,9 +71,9 @@ Firestone Bot автоматизирует выполнение повседне
     "CloseWindows": false
   },
   "FirestoneResearch": {
-    "1/12": 1,
-    "2/2": 1,
-    "1/6": 2
+    "Prestigious": 1,
+    "Raining Gold": 2,
+    "All Main Attributes": 3
   },
   "OracleBlessings": {
     "11": 1,
@@ -97,18 +97,23 @@ Firestone Bot автоматизирует выполнение повседне
 
 ### Исследования Firestone
 
-Приоритеты исследований настраиваются в секции `FirestoneResearch`:
+Приоритеты исследований настраиваются в секции `FirestoneResearch` по названиям исследований:
 
 ```json
 "FirestoneResearch": {
-  "1/12": 1,  // tree1/research12 - Prestigious (престижный)
-  "2/2": 1,   // tree2/research2 - Prestigious (престижный)
-  "1/6": 2,   // tree1/research6 - Raining gold (золотой дождь)
-  "2/5": 2,   // tree2/research5 - Raining gold (золотой дождь)
-  "3/14": 2,  // tree3/research14 - Raining gold (золотой дождь)
-  "2/1": 3    // tree2/research1 - All main attributes (все основные атрибуты)
+  "Prestigious": 1,
+  "Raining Gold": 2,
+  "All Main Attributes": 3,
+  "Attribute Damage": 7,
+  "Damage Specialization": 9,
+  "Precision": 10
 }
 ```
+
+**Особенности:**
+- Названия исследований определяются автоматически из игрового интерфейса
+- Используются понятные английские названия вместо индексов
+- Система автоматически преобразует внутренние имена спрайтов в читаемый формат
 
 ### Благословения оракула
 
@@ -169,7 +174,7 @@ Firestone Bot автоматизирует выполнение повседне
 
 ### Справочные секции:
 
-В конфиге также присутствуют справочные секции `ResearchNames` и `BlessingNames` с описаниями всех доступных исследований и благословений для удобства настройки.
+В конфиге присутствует справочная секция `BlessingNames` с описаниями всех доступных благословений для удобства настройки.
 
 ## Принцип работы
 
