@@ -33,6 +33,7 @@ namespace Firestone_bot
             { BotFunction.Tanks, (() => ConfigManager.Config.Bot.Tanks, Tanks.ProcessTanks) },
             { BotFunction.Alchemy, (() => ConfigManager.Config.Bot.Alchemy, Alchemy.ProcessAlchemy) },
             { BotFunction.Engineer, (() => ConfigManager.Config.Bot.Engineer, Engineer.ProcessEngineer) },
+            { BotFunction.Guardian, (() => ConfigManager.Config.Bot.Guardian, Guardian.ProcessGuardian) },
             { BotFunction.Sales, (() => ConfigManager.Config.Bot.Sales, Sales.ProcessSales) },
             { BotFunction.CloseWindows, (() => ConfigManager.Config.Bot.CloseWindows, CloseWindows.CloseAllWindows) }
         };
@@ -119,7 +120,8 @@ namespace Firestone_bot
                 BotFunction.Chests => BotFunction.Tanks,
                 BotFunction.Tanks => BotFunction.Alchemy,
                 BotFunction.Alchemy => BotFunction.Engineer,
-                BotFunction.Engineer => BotFunction.Sales,
+                BotFunction.Engineer => BotFunction.Guardian,
+                BotFunction.Guardian => BotFunction.Sales,
                 BotFunction.Sales => BotFunction.CloseWindows,
                 BotFunction.CloseWindows => BotFunction.GuildExpeditions,
                 _ => BotFunction.GuildExpeditions
@@ -223,6 +225,7 @@ namespace Firestone_bot
         Tanks,
         Alchemy,
         Engineer,
+        Guardian,
         Sales,
         CloseWindows
     }
@@ -245,6 +248,7 @@ namespace Firestone_bot
         public Dictionary<string, int> OracleBlessings { get; set; } = new();
         public Dictionary<string, int> MissionPriorities { get; set; } = new();
         public Dictionary<string, bool> SalesItems { get; set; } = new();
+        public GuardianSettings GuardianSettings { get; set; } = new();
         public Dictionary<string, string> ResearchNames { get; set; } = new();
         public Dictionary<string, string> BlessingNames { get; set; } = new();
     }
@@ -268,8 +272,18 @@ namespace Firestone_bot
         public bool Tanks { get; set; } = true;
         public bool Alchemy { get; set; } = true;
         public bool Engineer { get; set; } = true;
+        public bool Guardian { get; set; } = true;
         public bool Sales { get; set; } = false;
         public bool CloseWindows { get; set; } = true;
+    }
+
+    public class GuardianSettings
+    {
+        public bool Angel { get; set; } = false;
+        public bool Dragon { get; set; } = true;
+        public bool Fenix { get; set; } = false;
+        public bool Jinn { get; set; } = false;
+        public bool Enlightenment { get; set; } = false;
     }
 
     public static class ConfigManager
@@ -350,7 +364,8 @@ namespace Firestone_bot
                     { "MidasTouch", true }, { "PouchOfGold", false }, { "BucketOfGold", false },
                     { "CrateOfGold", false }, { "PileOfGold", false }, { "DrumsOfWar", true },
                     { "DragonArmor", true }, { "GuardiansRune", true }, { "TotemOfAgony", true },
-                    { "TotemOfAnnihilation", true }
+                    { "TotemOfAnnihilation", true }, { "ScrollOfSpeed", true }, { "ScrollOfStrength", true },
+                    { "ScrollOfVitality", true }
                 }
             };
         }

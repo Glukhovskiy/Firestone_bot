@@ -220,7 +220,7 @@ namespace Firestone_bot
                                 {
                                     var itemName = ConvertSpriteToItemName(itemSprite);
                                     
-                                    if (ConfigManager.Config.SalesItems.ContainsKey(itemName) && 
+                                    if (ConfigManager.Config.SalesItems.ContainsKey(itemName) &&
                                         ConfigManager.Config.SalesItems[itemName])
                                     {
                                         var clickCount = 0;
@@ -229,7 +229,7 @@ namespace Firestone_bot
                                             clickCount++;
                                             System.Threading.Thread.Sleep(100); // Короткая задержка
                                         }
-                                        
+
                                         if (clickCount > 0)
                                         {
                                             MelonLogger.Msg($"Продан: {itemName} (x{clickCount})");

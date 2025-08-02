@@ -7,9 +7,18 @@ namespace Firestone_bot
     {
         private static bool _oraclesGiftClicked = false;
         private static float _oraclesGiftClickTime = 0f;
+        private static float _lastExecutionTime = 0f;
+        private const float EXECUTION_INTERVAL = 300f; // 5 минут
         
         public static void ProcessOraclesGift()
         {
+            // Проверяем, прошло ли 5 минут с последнего выполнения
+            if (Time.time - _lastExecutionTime < EXECUTION_INTERVAL)
+            {
+                BotMain.NextFunction();
+                return;
+            }
+            
             if (!_oraclesGiftClicked)
             {
                 GameObject oraclesGiftButton = FindOraclesGiftButton();
@@ -29,6 +38,7 @@ namespace Firestone_bot
                 else
                 {
                     DebugManager.DebugLog("Кнопка OraclesGift не найдена");
+                    _lastExecutionTime = Time.time;
                     BotMain.NextFunction();
                     ResetState();
                     return;
@@ -76,6 +86,7 @@ namespace Firestone_bot
                 }
                 
                 CloseOraclesGiftWindow();
+                _lastExecutionTime = Time.time;
                 BotMain.NextFunction();
                 ResetState();
             }
